@@ -65,6 +65,11 @@ public class PipeSet {
         return BOTTOM.getBoundingBoxAt(botPosition);
     }
 
+    // Method to return if pipe has been passed by bird
+    public boolean getHasPassed() {
+        return hasPassed;
+    }
+
     // Method to increase speed of pipes
     public void increaseSpeed() {
         if (timescale < 5) {
@@ -89,8 +94,11 @@ public class PipeSet {
     }
 
     // Method to check if bird has passed pipe set
-    public boolean checkWin(Bird bird) {
+    public boolean checkPass(Bird bird) {
         Rectangle birdBox = bird.getBirdBoundingBox();
-        return birdBox.left() > getTopRectangle().right();
+        if (birdBox.left() > getTopRectangle().right()){
+            hasPassed = true;
+        }
+        return hasPassed;
     }
 }

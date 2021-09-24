@@ -16,8 +16,7 @@ public class ShadowFlap extends AbstractGame {
     // Game objects
     private Background BACKGROUND;
     private Bird BIRD;
-    private final Pipes PIPES;              // --- Check pipes queue
-    private final PipeSet PIPE_SET;
+    private final Pipes PIPES;
     private final Messages MESSAGES;
 
     // Game variables
@@ -43,7 +42,6 @@ public class ShadowFlap extends AbstractGame {
         // Load objects
         BACKGROUND = new Background(level);
         BIRD = new Bird(level);
-        PIPE_SET = new PipeSet(level, 500);
         PIPES = new Pipes(level);
         MESSAGES = new Messages();
     }
@@ -79,7 +77,7 @@ public class ShadowFlap extends AbstractGame {
                 frameCounter += 1;
 
                 // Draw pipes
-                PIPE_SET.drawPipes();
+                PIPES.drawPipes();
 
                 // Draw bird
                 BIRD.drawBird(frameCounter);
@@ -97,7 +95,7 @@ public class ShadowFlap extends AbstractGame {
                 checkGameOver();
 
                 // Move pipes to the left
-                PIPE_SET.leftShift();
+                PIPES.leftShift();
             } else {
                 // Game over
                 if (gameWon)
@@ -117,15 +115,15 @@ public class ShadowFlap extends AbstractGame {
     // Method to check if the game won or lost
     public void checkGameOver() {
         // Collision with pipes
-        if (PIPE_SET.checkCollision(BIRD))
+        if (PIPES.checkCollision(BIRD))
             gameOver = true;
         else if (BIRD.checkOutOfBounds())
             // Out of bounds
             gameOver = true;
-        else if (PIPE_SET.checkWin(BIRD)) {
+        else if (PIPES.checkPass(BIRD)) {
             // Has passed the pipes successfully
-            score += 1;
-            if (score > 3) {
+            score = PIPES.getScore();
+            if (score >= 10) {
                 gameWon = true;
                 gameOver = true;
             }
