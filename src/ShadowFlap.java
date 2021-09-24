@@ -1,4 +1,7 @@
 import bagel.*;
+import bagel.util.Colour;
+import bagel.util.Point;
+
 
 /**
  * Skeleton Code for SWEN20003 Project 2, Semester 2, 2021
@@ -13,7 +16,8 @@ public class ShadowFlap extends AbstractGame {
     // Game objects
     private Background BACKGROUND;
     private Bird BIRD;
-    private final Pipes PIPES;
+    private final Pipes PIPES;              // --- Check pipes queue
+    private final PipeSet PIPE_SET;
     private final Messages MESSAGES;
 
     // Game variables
@@ -39,7 +43,8 @@ public class ShadowFlap extends AbstractGame {
         // Load objects
         BACKGROUND = new Background(level);
         BIRD = new Bird(level);
-        PIPES = new Pipes();
+        PIPE_SET = new PipeSet(level, 500);
+        PIPES = new Pipes(level);
         MESSAGES = new Messages();
     }
 
@@ -59,6 +64,8 @@ public class ShadowFlap extends AbstractGame {
     public void update(Input input) {
         // Background always displayed
         BACKGROUND.displayBackground();
+        // Check pipe
+        // Drawing.drawLine(new Point(0,500), new Point(1024, 500), 2, Colour.BLACK);
 
         // Start message
         if (!gameOn) {
@@ -72,7 +79,7 @@ public class ShadowFlap extends AbstractGame {
                 frameCounter += 1;
 
                 // Draw pipes
-                PIPES.drawPipes();
+                PIPE_SET.drawPipes();
 
                 // Draw bird
                 BIRD.drawBird(frameCounter);
@@ -90,7 +97,7 @@ public class ShadowFlap extends AbstractGame {
                 checkGameOver();
 
                 // Move pipes to the left
-                PIPES.leftShift();
+                PIPE_SET.leftShift();
             } else {
                 // Game over
                 if (gameWon)
@@ -110,18 +117,18 @@ public class ShadowFlap extends AbstractGame {
     // Method to check if the game won or lost
     public void checkGameOver() {
         // Collision with pipes
-        if (BIRD.checkCollision(PIPES.getTopRectangle()))
+        if (PIPE_SET.checkCollision(BIRD))
             gameOver = true;
-        else if (BIRD.checkCollision(PIPES.getBotRectangle()))
-            gameOver = true;
-        else if (BIRD.checkOutBounds())
+        else if (BIRD.checkOutOfBounds())
             // Out of bounds
             gameOver = true;
-        else if (BIRD.checkWin(PIPES.getTopRectangle())) {
+        else if (PIPE_SET.checkWin(BIRD)) {
             // Has passed the pipes successfully
             score += 1;
-            gameWon = true;
-            gameOver = true;
+            if (score > 3) {
+                gameWon = true;
+                gameOver = true;
+            }
         }
     }
 }

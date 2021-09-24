@@ -52,23 +52,15 @@ public class Bird {
         velocity = (isPressed) ? -6.0 : velocity;
     }
 
-    // Method to check collision with pipes
-    public boolean checkCollision(Rectangle pipe) {
-        // Both wing positions have the same bounding box for a given position
-        Rectangle birdBox = WING_UP.getBoundingBoxAt(position);
-        return birdBox.intersects(pipe);
-    }
-
     // Method to check if bird is out of bounds
-    public boolean checkOutBounds() {
+    public boolean checkOutOfBounds() {
         // If the centre of the bird if it is out-of-bounds
         return position.y < 0 || position.y > Window.getHeight();
     }
 
-    // Method to check if bird has surpassed x value pipes
-    public boolean checkWin(Rectangle pipe) {
-        Rectangle birdBox = WING_UP.getBoundingBoxAt(position);
-        return birdBox.left() > pipe.right();
+    // Method to get bounding box of the bird
+    public Rectangle getBirdBoundingBox() {
+        return WING_UP.getBoundingBoxAt(position);
     }
 
     // Method to respawn bird at initial position once out of bounds
