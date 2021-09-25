@@ -16,6 +16,8 @@ public class Pipes {
     private final int level;
     private int score;
     private int frameCounter;
+    private int timeScale;
+    private double speed;
 
     public Pipes(int level, Bird bird) {
         // Load objects
@@ -24,6 +26,8 @@ public class Pipes {
 
         // Game variables
         score = 0;
+        speed = 3.0;
+        timeScale = 1;
         this.level = level;
     }
 
@@ -32,10 +36,10 @@ public class Pipes {
         Random rand = new Random();
         if (level == 0)
             // Choose only plastic pipes
-            gamePipes.add(new PipeSet(0, LEVEL0_GAPS[rand.nextInt(LEVEL0_GAPS.length)]));
+            gamePipes.add(new PipeSet(0, LEVEL0_GAPS[rand.nextInt(LEVEL0_GAPS.length)], speed));
         else {
             // if level 1 randomize pipes between plastic and steel
-            gamePipes.add(new PipeSet(1, LEVEL0_GAPS[rand.nextInt(LEVEL0_GAPS.length)]));
+            gamePipes.add(new PipeSet(1, LEVEL0_GAPS[rand.nextInt(LEVEL0_GAPS.length)], speed));
         }
     }
 
@@ -114,6 +118,28 @@ public class Pipes {
     // Method to get score from after checking number of pipes passed
     public int getScore() {
         return score;
+    }
+
+    // Method to speed up the pipes in the game
+    public void speedUp(boolean isPressed) {
+        if (isPressed)
+            if (timeScale < 5) {
+                timeScale += 1;
+                speed += 1.5;
+                for (PipeSet pipe: gamePipes)
+                    pipe.setSpeed(speed);
+            }
+    }
+
+    // Method to slow down the pipes in the game
+    public void slowDown(boolean isPressed) {
+        if (isPressed)
+            if (timeScale > 1) {
+                timeScale -= 1;
+                speed -= 1.5;
+                for (PipeSet pipe: gamePipes)
+                    pipe.setSpeed(speed);
+            }
     }
 
 }

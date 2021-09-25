@@ -72,6 +72,8 @@ public class ShadowFlap extends AbstractGame {
                 levelUp();
             else {
                 MESSAGES.getCentreMessage(Messages.START_MESSAGE);
+                // if (level == 1)
+                    // Get shoot message
                 if (input.wasPressed(Keys.SPACE)){
                     frameCounter = 0;
                     gameOn = true;
@@ -93,7 +95,13 @@ public class ShadowFlap extends AbstractGame {
                 BIRD.gravity();
 
                 // Allow bird to jump
-                BIRD.pressedSpace(input.isDown(Keys.SPACE));
+                BIRD.pressedSpace(input.wasPressed(Keys.SPACE));
+
+                // Increase speed with L key
+                PIPES.speedUp(input.wasPressed(Keys.L));
+
+                // Decrease speed with K key
+                PIPES.slowDown(input.wasPressed(Keys.K));
 
                 // Check collision or game won
                 checkGameOver();

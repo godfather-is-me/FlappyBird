@@ -22,7 +22,7 @@ public class PipeSet {
     // public static Queue<Pipes> gamePipes;
 
     // Pipes constructor
-    public PipeSet(int level, int centre) {
+    public PipeSet(int level, int centre, double speed) {
         // Load pipes
         if (level == 0) {
             TOP = new Image("res/level/plasticPipe.png");
@@ -39,7 +39,7 @@ public class PipeSet {
         botPosition = new Point(Window.getWidth(), (Window.getHeight() / 2.0) + centre + SPACING);
 
         hasPassed = false;
-        speed = 3.0;
+        this.speed = speed;
         timescale = 1;
     }
 
@@ -70,20 +70,9 @@ public class PipeSet {
         return hasPassed;
     }
 
-    // Method to increase speed of pipes
-    public void increaseSpeed() {
-        if (timescale < 5) {
-            timescale += 1;
-            speed += 1.5;
-        }
-    }
-
-    // Method to decrease speed of pipes
-    public void decreaseSpeed() {
-        if (timescale > 1) {
-            timescale -= 1;
-            speed -= 1.5;
-        }
+    // Method to modify speed based on the increase/decrease
+    public void setSpeed(double speed) {
+        this.speed = speed;
     }
 
     // Method to check bird collision with pipe set
