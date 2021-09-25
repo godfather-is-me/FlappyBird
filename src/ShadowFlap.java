@@ -1,7 +1,4 @@
 import bagel.*;
-import bagel.util.Colour;
-import bagel.util.Point;
-
 
 /**
  * Skeleton Code for SWEN20003 Project 2, Semester 2, 2021
@@ -42,7 +39,7 @@ public class ShadowFlap extends AbstractGame {
         // Load objects
         BACKGROUND = new Background(level);
         BIRD = new Bird(level);
-        PIPES = new Pipes(level);
+        PIPES = new Pipes(level, BIRD);
         MESSAGES = new Messages();
     }
 
@@ -62,8 +59,6 @@ public class ShadowFlap extends AbstractGame {
     public void update(Input input) {
         // Background always displayed
         BACKGROUND.displayBackground();
-        // Check pipe
-        // Drawing.drawLine(new Point(0,500), new Point(1024, 500), 2, Colour.BLACK);
 
         // Start message
         if (!gameOn) {
@@ -81,7 +76,7 @@ public class ShadowFlap extends AbstractGame {
 
                 // Draw bird
                 BIRD.drawBird(frameCounter);
-
+                
                 // Draw Score message
                 MESSAGES.getCurrentScore(score);
 
@@ -114,14 +109,11 @@ public class ShadowFlap extends AbstractGame {
 
     // Method to check if the game won or lost
     public void checkGameOver() {
-        // Collision with pipes
-        if (PIPES.checkCollision(BIRD))
+        // Collision with pipes/Out of bounds and no lives left
+        if (PIPES.checkCollisionAndLives() || BIRD.checkOutOfBoundsAndLives())
             gameOver = true;
-        else if (BIRD.checkOutOfBounds())
-            // Out of bounds
-            gameOver = true;
-        else if (PIPES.checkPass(BIRD)) {
-            // Has passed the pipes successfully
+        // Has passed the pipes successfully
+        else if (PIPES.checkPass()) {
             score = PIPES.getScore();
             if (score >= 10) {
                 gameWon = true;

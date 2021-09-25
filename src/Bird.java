@@ -5,6 +5,7 @@ public class Bird {
     // Local variables
     private final Image WING_UP;
     private final Image WING_DOWN;
+    private final LifeBar LIFEBAR;
 
     private Point position;
     private double velocity;
@@ -12,6 +13,7 @@ public class Bird {
     // Constants
     private final double ACCELERATION = 0.4;
     private final double TERMINAL_VELOCITY = 10.0;
+    private final Point INITIAL_POSITION = new Point(200, 350);
 
     // Bird constructor
     public Bird(int level) {
@@ -25,7 +27,8 @@ public class Bird {
             WING_DOWN = new Image("res/level-1/birdWingDown.png");
         }
         // Load bird variables
-        position = new Point(200, 350);
+        LIFEBAR = new LifeBar(level);
+        position = INITIAL_POSITION;
         velocity = 0;
     }
 
@@ -35,6 +38,9 @@ public class Bird {
             WING_UP.draw(position.x, position.y);
         else
             WING_DOWN.draw(position.x, position.y);
+
+        // Bird's lives
+        LIFEBAR.drawLifeBar();
     }
 
     // Method to add gravity effect
@@ -53,9 +59,18 @@ public class Bird {
     }
 
     // Method to check if bird is out of bounds
-    public boolean checkOutOfBounds() {
+    public boolean checkOutOfBoundsAndLives() {
         // If the centre of the bird if it is out-of-bounds
-        return position.y < 0 || position.y > Window.getHeight();
+        if (position.y < 0 || position.y > Window.getHeight()) {
+            lifeLost();
+            if (hasLives())
+                // Respawn
+                respawn();
+            else
+                // Out of bounds and no lives left
+                return true;
+        }
+        return false;
     }
 
     // Method to get bounding box of the bird
@@ -63,5 +78,18 @@ public class Bird {
         return WING_UP.getBoundingBoxAt(position);
     }
 
+    // Method to update lifeBar after collision
+    public void lifeLost() {
+        LIFEBAR.lifeLost();
+    }
+
+    // Method to check if bird has lives left
+    public boolean hasLives() {
+        return LIFEBAR.hasLives();
+    }
+
     // Method to respawn bird at initial position once out of bounds
+    public void respawn() {
+        position = INITIAL_POSITION;
+    }
 }
