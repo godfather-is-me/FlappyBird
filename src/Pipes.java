@@ -18,25 +18,24 @@ public class Pipes {
     private int frameCounter;
 
     public Pipes(int level, Bird bird) {
-        // Load pipes queue
+        // Load objects
         gamePipes = new LinkedList<>();
         this.BIRD = bird;
 
         // Game variables
-        this.level = level;
         score = 0;
+        this.level = level;
     }
 
     // Method to add new Pipe set into Queue
     public void addPipeSet() {
         Random rand = new Random();
-
-        // Check level
-        if (level == 0){
+        if (level == 0)
             // Choose only plastic pipes
             gamePipes.add(new PipeSet(0, LEVEL0_GAPS[rand.nextInt(LEVEL0_GAPS.length)]));
-        } else {
+        else {
             // if level 1 randomize pipes between plastic and steel
+            gamePipes.add(new PipeSet(1, LEVEL0_GAPS[rand.nextInt(LEVEL0_GAPS.length)]));
         }
     }
 
@@ -91,9 +90,9 @@ public class Pipes {
     // Method to check if bird has passed the next pipe set that has not been passed
     public boolean checkPass() {
         for (PipeSet pipe: gamePipes) {
-            if (pipe.getHasPassed()) {
+            if (pipe.getHasPassed())
                 continue;
-            }
+
             if (pipe.checkPass(BIRD)) {
                 score += 1;
                 return true;
@@ -106,11 +105,9 @@ public class Pipes {
     // Method to pop pipe that has left the window
     public void checkPipeBounds() {
         PipeSet head = gamePipes.peek();
-
-        // Check if it has been passed by bird
         if (head.getHasPassed())
-            // Check the right side of pipe is beyond the window
             if (head.getTopRectangle().right() < 0)
+                // Check the right side of pipe is beyond the window
                 gamePipes.remove();
     }
 

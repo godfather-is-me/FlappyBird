@@ -13,7 +13,7 @@ public class ShadowFlap extends AbstractGame {
     // Game objects
     private Background BACKGROUND;
     private Bird BIRD;
-    private final Pipes PIPES;
+    private Pipes PIPES;
     private final Messages MESSAGES;
 
     // Game variables
@@ -23,6 +23,7 @@ public class ShadowFlap extends AbstractGame {
     private boolean gameOn;
     private boolean gameOver;
     private boolean gameWon;
+    private boolean loadedObjects;
 
     // Constructor
     public ShadowFlap() {
@@ -35,6 +36,7 @@ public class ShadowFlap extends AbstractGame {
         gameOn = false;
         gameOver = false;
         gameWon = false;
+        loadedObjects = true;
 
         // Load objects
         BACKGROUND = new Background(level);
@@ -60,23 +62,30 @@ public class ShadowFlap extends AbstractGame {
         // Background always displayed
         BACKGROUND.displayBackground();
 
+        // Start counting number of frames as game starts
+        frameCounter += 1;
+
         // Start message
         if (!gameOn) {
-            MESSAGES.getCentreMessage(Messages.START_MESSAGE);
-            if (input.wasPressed(Keys.SPACE))
-                gameOn = true;
+            if (!loadedObjects)
+                // Change objects pre-game during level transitions
+                levelUp();
+            else {
+                MESSAGES.getCentreMessage(Messages.START_MESSAGE);
+                if (input.wasPressed(Keys.SPACE)){
+                    frameCounter = 0;
+                    gameOn = true;
+                }
+            }
         } else {
             // Game has started
             if (!gameOver) {
-                // Start counting number of frames as game starts
-                frameCounter += 1;
-
                 // Draw pipes
                 PIPES.drawPipes();
 
                 // Draw bird
                 BIRD.drawBird(frameCounter);
-                
+
                 // Draw Score message
                 MESSAGES.getCurrentScore(score);
 
@@ -115,10 +124,33 @@ public class ShadowFlap extends AbstractGame {
         // Has passed the pipes successfully
         else if (PIPES.checkPass()) {
             score = PIPES.getScore();
-            if (score >= 10) {
-                gameWon = true;
-                gameOver = true;
+            if (level == 0) {
+                if (score >= 10) {
+                    level = 1;
+                    frameCounter = 0;
+                    gameOn = false;
+                    loadedObjects = false;
+                }
+            } else {
+                if (score >= 3) {
+                    gameWon = true;
+                    gameOver = true;
+                }
             }
+        }
+    }
+
+    // Method to transition from level 0 to level 1
+    public void levelUp() {
+        if (frameCounter < 20)
+            MESSAGES.getCentreMessage(Messages.LEVEL_UP);
+        else {
+            score = 0;
+            // Load objects
+            BIRD = new Bird(level);
+            PIPES = new Pipes(level, BIRD);
+            BACKGROUND = new Background(level);
+            loadedObjects = true;
         }
     }
 }

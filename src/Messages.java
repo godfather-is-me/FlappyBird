@@ -9,6 +9,7 @@ public class Messages {
     public static final String FINAL_SCORE = "FINAL SCORE: ";
     public static final String GAME_OVER = "GAME OVER";
     public static final String WIN_MESSAGE = "CONGRATULATIONS!";
+    public static final String LEVEL_UP = "LEVEL-UP!";
 
     private final int FONT_SIZE = 48;
     private final int SHIFT_DOWN = 75;
