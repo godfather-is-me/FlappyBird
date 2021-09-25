@@ -1,6 +1,3 @@
-import bagel.*;
-import bagel.util.*;
-
 import java.util.*;
 
 public class Pipes {
@@ -18,6 +15,7 @@ public class Pipes {
     private int frameCounter;
     private int timeScale;
     private double speed;
+    private int frameDuration;
 
     public Pipes(int level, Bird bird) {
         // Load objects
@@ -28,6 +26,7 @@ public class Pipes {
         score = 0;
         speed = 3.0;
         timeScale = 1;
+        frameDuration = 0;
         this.level = level;
     }
 
@@ -38,9 +37,12 @@ public class Pipes {
             // Choose only plastic pipes
             gamePipes.add(new PipeSet(0, LEVEL0_GAPS[rand.nextInt(LEVEL0_GAPS.length)], speed));
         else {
-            // if level 1 randomize pipes between plastic and steel
-            gamePipes.add(new PipeSet(1, LEVEL0_GAPS[rand.nextInt(LEVEL0_GAPS.length)], speed));
+            // Random y between 100-500
+            int randY = rand.nextInt(400) + 100;
+            int randPipe = rand.nextInt(2);
+            gamePipes.add(new PipeSet(randPipe, randY, speed));
         }
+
     }
 
     // Method to draw every pipe from queue
@@ -59,6 +61,17 @@ public class Pipes {
         // Draw all pipes seen in queue
         for(PipeSet pipe : gamePipes){
             pipe.drawPipes();
+
+            // Draw flames
+            if (pipe.getLevel() == 1) {
+                if ((frameCounter % 20) == 0)
+                    frameDuration = frameCounter + 3;
+                if (frameCounter < frameDuration) {
+                    pipe.drawFlames();
+                    pipe.updatedDrawnFlames(true);
+                } else
+                    pipe.updatedDrawnFlames(false);
+            }
         }
     }
 

@@ -91,5 +91,6 @@ public class Bird {
     // Method to respawn bird at initial position once out of bounds
     public void respawn() {
         position = INITIAL_POSITION;
+        velocity = 0;
     }
 }

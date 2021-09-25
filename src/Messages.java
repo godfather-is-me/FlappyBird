@@ -10,9 +10,9 @@ public class Messages {
     public static final String GAME_OVER = "GAME OVER";
     public static final String WIN_MESSAGE = "CONGRATULATIONS!";
     public static final String LEVEL_UP = "LEVEL-UP!";
+    public static final String SHOOT_MESSAGE = "PRESS 'S' TO SHOOT";
 
     private final int FONT_SIZE = 48;
-    private final int SHIFT_DOWN = 75;
     private final int WINDOW_WIDTH;
     private final int WINDOW_HEIGHT;
 
@@ -27,7 +27,7 @@ public class Messages {
 
     // Method to output formatted start message
     public void getCentreMessage(String message) {
-        FONT.drawString(message, getCentredX(message), getCentredY(false));
+        FONT.drawString(message, getCentredX(message), getCentredY(0));
     }
 
     // Method to output current score
@@ -37,8 +37,15 @@ public class Messages {
 
     // Method to output final score
     public void getFinalScore(Integer score) {
+        final int SHIFT_DOWN = 75;
         final String message = FINAL_SCORE + score.toString();
-        FONT.drawString(message, getCentredX(message), getCentredY(true));
+        FONT.drawString(message, getCentredX(message), getCentredY(SHIFT_DOWN));
+    }
+
+    // Method to output shoot instructions
+    public void getShootMessage() {
+        final int SHIFT_DOWN = 68;
+        FONT.drawString(Messages.SHOOT_MESSAGE, getCentredX(Messages.SHOOT_MESSAGE), getCentredY(SHIFT_DOWN));
     }
 
     // Method to return the centred x coordinate
@@ -47,11 +54,8 @@ public class Messages {
     }
 
     // Method to return the centred y coordinate
-    public double getCentredY(boolean shift) {
-        // Font size observed to be 24 pixels along y-axis while running game
-        if (shift)
-            return ((WINDOW_HEIGHT + (FONT_SIZE / 2.0)) / 2.0) + SHIFT_DOWN;
-        else
-            return (WINDOW_HEIGHT + (FONT_SIZE / 2.0)) / 2.0;
+    public double getCentredY(int shift) {
+        // Font size observed to centre at half
+        return ((WINDOW_HEIGHT + (FONT_SIZE / 2.0)) / 2.0) + shift;
     }
 }

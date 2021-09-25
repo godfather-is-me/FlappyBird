@@ -16,6 +16,10 @@ public class ShadowFlap extends AbstractGame {
     private Pipes PIPES;
     private final Messages MESSAGES;
 
+    // Constants
+    private final int LEVEL0_SCORE = 2;
+    private final int LEVEL1_SCORE = 5;
+
     // Game variables
     private Integer score;
     private Integer level;
@@ -72,8 +76,8 @@ public class ShadowFlap extends AbstractGame {
                 levelUp();
             else {
                 MESSAGES.getCentreMessage(Messages.START_MESSAGE);
-                // if (level == 1)
-                    // Get shoot message
+                if (level == 1)
+                    MESSAGES.getShootMessage();
                 if (input.wasPressed(Keys.SPACE)){
                     frameCounter = 0;
                     gameOn = true;
@@ -85,7 +89,7 @@ public class ShadowFlap extends AbstractGame {
                 // Draw pipes
                 PIPES.drawPipes();
 
-                // Draw bird
+                // Draw bird with its lives
                 BIRD.drawBird(frameCounter);
 
                 // Draw Score message
@@ -133,14 +137,14 @@ public class ShadowFlap extends AbstractGame {
         else if (PIPES.checkPass()) {
             score = PIPES.getScore();
             if (level == 0) {
-                if (score >= 10) {
+                if (score >= LEVEL0_SCORE) {
                     level = 1;
                     frameCounter = 0;
                     gameOn = false;
                     loadedObjects = false;
                 }
             } else {
-                if (score >= 3) {
+                if (score >= LEVEL1_SCORE) {
                     gameWon = true;
                     gameOver = true;
                 }

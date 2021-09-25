@@ -1,5 +1,4 @@
 import bagel.*;
-import bagel.util.*;
 
 public class LifeBar {
     private final Image HEALTH;
