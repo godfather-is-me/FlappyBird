@@ -1,6 +1,3 @@
-import bagel.Window;
-import bagel.util.Point;
-
 import java.util.*;
 
 public class GameManager {
@@ -99,8 +96,12 @@ public class GameManager {
     }
 
     // Method to add new weapon set into Queue
-    public void addWeapon(PipeSet pipe) {                    // ----------- Randomize with stone if rand == 1 bomb else stone
-        weapons.add(new Bomb(pipe));
+    public void addWeapon(PipeSet pipe) {
+        Random rand = new Random();
+        if (rand.nextInt(2) == 0)
+            weapons.add(new Rock(pipe));
+        else
+            weapons.add(new Bomb(pipe));
     }
 
     // Method to shift every pipe to the left
@@ -119,7 +120,7 @@ public class GameManager {
                 continue;
 
             // At the next pipe which has not been passed
-            if (pipe.checkBirdCollision(BIRD)) {    // || pipe.checkWeaponCollision(BIRD.)
+            if (pipe.checkBirdCollision(BIRD) || pipe.checkWeaponCollision(BIRD)) {
                 BIRD.lifeLost();
                 if (BIRD.hasLives())
                     gamePipes.remove(pipe);
@@ -127,6 +128,16 @@ public class GameManager {
                  // Bird has collided and no lives left
                  return  true;
             }
+
+            // Check if the weapon has collided with pipe when shot
+            if (BIRD.getHasShotWeapon()) {
+                if (BIRD.getWeapon().checkDestruction(pipe)) {
+                    score += 1;
+                    gamePipes.remove(pipe);
+                    BIRD.removeWeapon();
+                }
+            }
+
             // The next pipe to be checked has not collided
             break;
         }
@@ -134,25 +145,21 @@ public class GameManager {
     }
 
     // Method to check if bird has passed the next pipe set that has not been passed
-    public boolean checkPass() {
+    public void checkPass() {
         for (PipeSet pipe: gamePipes) {
             if (pipe.getHasPassed())
                 continue;
-
-            if (pipe.checkPass(BIRD)) {
+            if (pipe.checkPass(BIRD))
                 score += 1;
-                return true;
-            } else
-                break;
+            break;
         }
 
         for (AbstractWeapon weapon: weapons){
             if (weapon.getHasPassed())
                 continue;
-            weapon.checkHasPassed(BIRD);
+            weapon.checkPass(BIRD);
             break;
         }
-        return false;
     }
 
     // Method to pop the pipe that has left the window
@@ -174,6 +181,30 @@ public class GameManager {
                 if (head.getBox().right() < 0)
                     weapons.remove();
         }
+    }
+
+    // Method to see if the weapon has been picked up or not
+    public void pickWeapon() {
+        if (!BIRD.getHasPickedWeapon()) {
+            for (AbstractWeapon weapon : weapons) {
+                if (weapon.getHasPassed())
+                    continue;
+
+                if (weapon.checkPickUp(BIRD)) {
+                    weapon.isPicked = true;
+                    BIRD.setWeapon(weapon);
+                    weapons.remove(weapon);
+                    break;
+                }
+            }
+        }
+    }
+
+    // Method to shoot weapon held by bird
+    public void shootWeapon(boolean keyPress) {
+        if (keyPress)
+            if (BIRD.getHasPickedWeapon())
+                BIRD.setHasShotWeapon();
     }
 
     // Method to get score from after checking number of pipes passed

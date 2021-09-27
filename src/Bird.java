@@ -6,11 +6,12 @@ public class Bird {
     private final Image WING_UP;
     private final Image WING_DOWN;
     private final LifeBar LIFEBAR;
-    private AbstractWeapon WEAPON;
+    private AbstractWeapon weapon;
 
     private Point position;
     private double velocity;
     private boolean hasPickedWeapon;
+    private boolean hasShotWeapon;
 
     // Constants
     private final double WIDTH;
@@ -30,6 +31,7 @@ public class Bird {
         velocity = 0;
         position = INITIAL_POSITION;
         hasPickedWeapon = false;
+        hasShotWeapon = false;
     }
 
     // Method to flap bird wings once every 10 frames
@@ -44,6 +46,26 @@ public class Bird {
 
         // Bird's lives
         LIFEBAR.drawLifeBar();
+
+        // Draw picked up weapon at beak
+        if (hasPickedWeapon) {
+            weapon.updatePosition(position, WIDTH);
+            weapon.drawWeapon();
+        } else if (hasShotWeapon) {
+            if (!weapon.checkOutOfRange()) {
+                weapon.updatePosition(position, WIDTH);
+                weapon.drawWeapon();
+                // Check for collision with pipe
+            } else
+                removeWeapon();
+        }
+    }
+
+    // Method to remove weapon
+    public void removeWeapon() {
+        weapon.setIsShot(false);
+        hasShotWeapon = false;
+        weapon = null;
     }
 
     // Method to add gravity effect
@@ -86,9 +108,32 @@ public class Bird {
         return position;
     }
 
-    // Method to get width of the bird
-    public double getWidth() {
-        return WIDTH;
+    // Method to get hasPickedWeapon
+    public boolean getHasPickedWeapon() {
+        return hasPickedWeapon;
+    }
+
+    // Method to get hasShotWeapon
+    public boolean getHasShotWeapon() {
+        return hasShotWeapon;
+    }
+
+    // Method to set hasShotWeapon
+    public void setHasShotWeapon() {
+        this.hasShotWeapon = true;
+        this.hasPickedWeapon = false;
+        weapon.shootWeapon();
+    }
+
+    // Method to set the weapon of the bird
+    public void setWeapon(AbstractWeapon weapon) {
+        this.weapon = weapon;
+        hasPickedWeapon = true;
+    }
+
+    // Method to get the weapon of the bird
+    public AbstractWeapon getWeapon() {
+        return weapon;
     }
 
     // Method to update lifeBar after collision

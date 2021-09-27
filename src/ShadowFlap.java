@@ -13,7 +13,7 @@ public class ShadowFlap extends AbstractGame {
     private final Messages MESSAGES;
     // Constants
     private final int LEVEL0_SCORE = 0;
-    private final int LEVEL1_SCORE = 5;
+    private final int LEVEL1_SCORE = 25;
 
     // Game objects
     private Background BACKGROUND;
@@ -101,6 +101,12 @@ public class ShadowFlap extends AbstractGame {
                 // Decrease speed with K key
                 MANAGER.slowDown(input.wasPressed(Keys.K));
 
+                // Check if any weapon has been picked up
+                MANAGER.pickWeapon();
+
+                // Check if 'S' has been pressed to shoot
+                MANAGER.shootWeapon(input.wasPressed(Keys.S));
+
                 // Check collision or game won
                 checkGameOver();
 
@@ -110,10 +116,10 @@ public class ShadowFlap extends AbstractGame {
                 // Game over
                 if (gameWon)
                     MESSAGES.getCentreMessage(Messages.WIN_MESSAGE);
-                else
+                else {
                     MESSAGES.getCentreMessage(Messages.GAME_OVER);
-                // Score message
-                MESSAGES.getFinalScore(score);
+                    MESSAGES.getFinalScore(score);
+                }
             }
         }
 
@@ -127,23 +133,24 @@ public class ShadowFlap extends AbstractGame {
         // Collision with pipes/Out of bounds and no lives left
         if (MANAGER.checkCollisionAndLives() || BIRD.checkOutOfBoundsAndLives())
             gameOver = true;
+
         // Has passed the pipes successfully
-        else if (MANAGER.checkPass()) {
-            score = MANAGER.getScore();
-            if (level == 0) {
-                if (score >= LEVEL0_SCORE) {
-                    level = 1;
-                    frameCounter = 0;
-                    gameOn = false;
-                    loadedObjects = false;
-                }
-            } else {
-                if (score >= LEVEL1_SCORE) {
-                    gameWon = true;
-                    gameOver = true;
-                }
+        MANAGER.checkPass();
+        score = MANAGER.getScore();
+        if (level == 0) {
+            if (score >= LEVEL0_SCORE) {
+                level = 1;
+                frameCounter = 0;
+                gameOn = false;
+                loadedObjects = false;
+            }
+        } else {
+            if (score >= LEVEL1_SCORE) {
+                gameWon = true;
+                gameOver = true;
             }
         }
+
     }
 
     // Method to transition from level 0 to level 1

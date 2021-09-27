@@ -11,6 +11,7 @@ public abstract class AbstractWeapon {
     protected boolean isShot;
     protected boolean isPicked;
     protected boolean hasPassed;
+    protected int currentDistance;
 
     // Constants
     protected final Image WEAPON;
@@ -25,6 +26,7 @@ public abstract class AbstractWeapon {
 
         moveSpeed = 3;
         shootSpeed = 5;
+        currentDistance = 0;
 
         isShot = false;
         isPicked = false;
@@ -37,6 +39,7 @@ public abstract class AbstractWeapon {
     public Point setInitialPosition(PipeSet pipe) {
         Random rand = new Random();
 
+        // Constants from game manager
         int pipeSpawnLength = GameManager.PIPE_SPAWN_LENGTH;
         int upperBound = GameManager.Y_UPPER_BOUND;
         int lowerBound = GameManager.Y_LOWER_BOUND;
@@ -59,33 +62,35 @@ public abstract class AbstractWeapon {
     }
 
     // Method to check if weapon has passed the bird's y-coordinate
-    public boolean checkHasPassed(Bird bird) {
-        Rectangle birdBox = bird.getBirdBoundingBox();
-        if (position != null)
-            if (birdBox.left() > WEAPON.getBoundingBoxAt(position).right()){
-                hasPassed = true;
-            }
+    public boolean checkPass(Bird bird) {
+        if (bird.getPosition().x > WEAPON.getBoundingBoxAt(position).right())
+            hasPassed = true;
         return hasPassed;
     }
 
-    // Method to check if weapon and pipes/flames intersect when bird carries
-            // ------ Implemented in pipe set
-
     // Method to update position of weapon with bird
-    public void updatePosition(Bird bird) {
+    public void updatePosition(Point birdPosition, double width) {
         double x, y;
         if (isPicked) {
-            x = bird.getPosition().x + (bird.getWidth() / 2.0);
-            y = bird.getPosition().y;
+            x = birdPosition.x + (width * 0.6);
+            y = birdPosition.y;
         } else if (isShot) {
             x = position.x + shootSpeed;
             y = position.y;
+            currentDistance += shootSpeed;
         } else {
-            // Function should not be called if isPicked or isShot not true
-            x = 0;
-            y = 0;
+            x = position.x;
+            y = position.y;
         }
         position = new Point(x, y);
+    }
+
+    // Method to check if weapon fired is out of range
+    public boolean checkOutOfRange() {
+        if (isShot)
+            if (currentDistance <= RANGE)
+                return false;
+        return true;
     }
 
     // Method to check if weapon and pipes intersect when shot
@@ -96,14 +101,11 @@ public abstract class AbstractWeapon {
                 // Intersection of pipe and weapon
                 if (pipe.getTopRectangle().intersects(WEAPON.getBoundingBoxAt(position)))
                     return true;
-                return pipe.getTopRectangle().intersects(WEAPON.getBoundingBoxAt(position));
+                return pipe.getBotRectangle().intersects(WEAPON.getBoundingBoxAt(position));
             }
         }
         return false;
     }
-
-    // Method to delete weapon if range exceeded
-            // To implement in Weapons queue
 
     // Method to draw weapon for the given position
     public void drawWeapon() {
@@ -116,8 +118,6 @@ public abstract class AbstractWeapon {
             isPicked = false;
             isShot = true;
         }
-        if (isShot)
-            position = new Point(position.x + 5, position.y);
     }
 
     // Method to move shift weapon to the left with every frame
@@ -125,12 +125,6 @@ public abstract class AbstractWeapon {
         if (!isShot)
             position = new Point(position.x - moveSpeed, position.y);
     }
-
-    // Method to randomize location of weapon between pipes
-            // Implement with Weapons queue as AddWeapon and helper functions
-
-    // Method to randomize between weapons (in Weapons Queue)
-            // Implement with Weapons queue as (no weapons/rock/bomb)
 
     // Method to get bounding box of weapon
     public Rectangle getBox() {
@@ -155,5 +149,20 @@ public abstract class AbstractWeapon {
     // Method to get hasPassed
     public boolean getHasPassed() {
         return hasPassed;
+    }
+
+    // Method to set isPicked
+    public void setIsPicked(boolean isPicked) {
+        this.isPicked = isPicked;
+    }
+
+    // Method to get isPicked
+    public boolean getIsPicked() {
+        return isPicked;
+    }
+
+    // Method to set isShot
+    public void setIsShot(boolean isShot) {
+        this.isShot = isShot;
     }
 }
