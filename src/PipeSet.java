@@ -6,10 +6,9 @@ import java.lang.Math;
 public class PipeSet {
     private final Image TOP;
     private final Image BOTTOM;
-    private final DrawOptions OPTION;
-
     private final Image TOP_FLAME;
     private final Image BOT_FLAME;
+    private final DrawOptions OPTION;
 
     private Point topPosition;
     private Point botPosition;
@@ -17,30 +16,26 @@ public class PipeSet {
     private Point botFlamePosition;
 
     // Game variables
+    private double speed;
     private boolean hasPassed;
     private boolean hasDrawnFlames;
-    private double speed;
+    private boolean hasWeaponAfter;
 
     // Constants
-    private final int SPACING = 168;
     private final int LEVEL;
-
-    // public static Queue<Pipes> gamePipes;
+    private final int SPACING = 168;
+    private final String[] PIPE_TYPES = {"plastic", "steel"};
 
     // Pipes constructor
-    public PipeSet(int level, int centre, double speed) {
-        // Load pipes
-        if (level == 0) {
-            TOP = new Image("res/level/plasticPipe.png");
-            BOTTOM = new Image("res/level/plasticPipe.png");
-        } else {
-            TOP = new Image("res/level-1/steelPipe.png");
-            BOTTOM = new Image("res/level-1/steelPipe.png");
-        }
+    public PipeSet(Integer level, int centre, double speed) {
+        String str_lvl = level.toString();
 
-        // Load flames
+        TOP = new Image("res/level-" + str_lvl + "/" + PIPE_TYPES[level] + "Pipe.png");
+        BOTTOM = new Image("res/level-" + str_lvl + "/" + PIPE_TYPES[level] + "Pipe.png");
+
         TOP_FLAME = new Image("res/level-1/flame.png");
         BOT_FLAME = new Image("res/level-1/flame.png");
+
         OPTION = new DrawOptions().setRotation(Math.PI);
 
         // Get window parameters
@@ -57,6 +52,7 @@ public class PipeSet {
 
         hasPassed = false;
         hasDrawnFlames = false;
+        hasWeaponAfter = false;
         this.speed = speed;
         this.LEVEL = level;
     }
@@ -71,11 +67,6 @@ public class PipeSet {
     public void drawFlames() {
         TOP_FLAME.draw(topFlamePosition.x, topFlamePosition.y);
         BOT_FLAME.draw(botFlamePosition.x, botFlamePosition.y, OPTION);
-    }
-
-    // Method to update hasDrawnFlames if flames are seen
-    public void updatedDrawnFlames(boolean hasDrawnFlames) {
-        this.hasDrawnFlames = hasDrawnFlames;
     }
 
     // Method to move pipe to the left at a constant speed
@@ -104,9 +95,34 @@ public class PipeSet {
         return hasPassed;
     }
 
+    // Getter for pipe level
+    public int getLevel() {
+        return LEVEL;
+    }
+
+    // Getter for width of the pipe
+    public double getWidth() {
+        return TOP.getWidth();
+    }
+
+    // Method to get hasWeaponAfter to see if weapon exists after pipe
+    public boolean getHasWeaponAfter() {
+        return hasWeaponAfter;
+    }
+
     // Method to modify speed based on the increase/decrease
     public void setSpeed(double speed) {
         this.speed = speed;
+    }
+
+    // Method to update hasDrawnFlames if flames are seen
+    public void setHasDrawnFlames(boolean hasDrawnFlames) {
+        this.hasDrawnFlames = hasDrawnFlames;
+    }
+
+    // Method to set hasWeapon if weapon has been placed after the pipe
+    public void setHasWeaponAfter(boolean hasWeaponAfter) {
+        this.hasWeaponAfter = hasWeaponAfter;
     }
 
     // Method to check bird collision with pipe set
@@ -120,7 +136,18 @@ public class PipeSet {
                 return true;
         }
         return (birdBox.intersects(getTopRectangle()) || birdBox.intersects(getBotRectangle()));
+    }
 
+    public boolean checkWeaponCollision(AbstractWeapon weapon) {
+        Rectangle weaponBox = weapon.getBox();
+        // Check if flames are drawn
+        if (hasDrawnFlames) {
+            if (weaponBox.intersects(TOP_FLAME.getBoundingBoxAt(topFlamePosition)))
+                return true;
+            else if (weaponBox.intersects(BOT_FLAME.getBoundingBoxAt(botFlamePosition)))
+                return true;
+        }
+        return (weaponBox.intersects(getTopRectangle()) || weaponBox.intersects(getBotRectangle()));
     }
 
     // Method to check if bird has passed pipe set
@@ -130,10 +157,5 @@ public class PipeSet {
             hasPassed = true;
         }
         return hasPassed;
-    }
-
-    // Getter for pipe level
-    public int getLevel() {
-        return LEVEL;
     }
 }

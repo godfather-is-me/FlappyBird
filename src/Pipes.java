@@ -1,3 +1,6 @@
+import bagel.Window;
+import bagel.util.Point;
+
 import java.util.*;
 
 public class Pipes {
@@ -7,6 +10,7 @@ public class Pipes {
 
     // Store all pipes from current window in a Queue
     private final Queue<PipeSet> gamePipes;
+    private final Queue<AbstractWeapon> weapons;
     private final Bird BIRD;
 
     // Game variables
@@ -20,6 +24,7 @@ public class Pipes {
     public Pipes(int level, Bird bird) {
         // Load objects
         gamePipes = new LinkedList<>();
+        weapons = new LinkedList<>();
         this.BIRD = bird;
 
         // Game variables
@@ -35,12 +40,38 @@ public class Pipes {
         Random rand = new Random();
         if (level == 0)
             // Choose only plastic pipes
-            gamePipes.add(new PipeSet(0, LEVEL0_GAPS[rand.nextInt(LEVEL0_GAPS.length)], speed));
+            gamePipes.add(new PipeSet(level, LEVEL0_GAPS[rand.nextInt(LEVEL0_GAPS.length)], speed));
         else {
             // Random y between 100-500
             int randY = rand.nextInt(400) + 100;
             int randPipe = rand.nextInt(2);
             gamePipes.add(new PipeSet(randPipe, randY, speed));
+        }
+    }
+
+    // Method to add new weapon set into Queue
+    public void addWeapon(PipeSet pipe) {
+        // Random rand = new Random();
+        Bomb tempBomb = new Bomb();
+        weapons.add(tempBomb);
+        weaponStartPosition(pipe, tempBomb);
+    }
+
+    // Method to randomize x location of weapon
+    public void weaponStartPosition(PipeSet pipe, AbstractWeapon wp) {
+        Random rand = new Random();
+        if (!pipe.getHasWeaponAfter()) {
+            // Both top and bottom have the same right x
+            if (pipe.getTopRectangle().right() < Window.getWidth()){
+                // Distance to next pipe
+                double distance = PIPE_SPAWN_LENGTH * speed;
+                // Available x coordinates
+                distance -= (pipe.getWidth() + wp.getWidth());
+                int x = (int) (rand.nextInt((int) distance) + pipe.getTopRectangle().right());
+                int y = rand.nextInt(400) + 100;
+                wp.setPosition(new Point(x, y));
+                pipe.setHasWeaponAfter(true);
+            }
         }
 
     }
@@ -50,8 +81,10 @@ public class Pipes {
         frameCounter += 1;
 
         // Spawn every 100 frames
-        if (gamePipes.isEmpty())
+        if (gamePipes.isEmpty()){
             addPipeSet();
+        }
+
         else if ((frameCounter % PIPE_SPAWN_LENGTH) == 0)
             addPipeSet();
 
@@ -61,6 +94,7 @@ public class Pipes {
         // Draw all pipes seen in queue
         for(PipeSet pipe : gamePipes){
             pipe.drawPipes();
+            addWeapon(pipe);
 
             // Draw flames
             if (pipe.getLevel() == 1) {
@@ -68,30 +102,37 @@ public class Pipes {
                     frameDuration = frameCounter + 3;
                 if (frameCounter < frameDuration) {
                     pipe.drawFlames();
-                    pipe.updatedDrawnFlames(true);
+                    pipe.setHasDrawnFlames(true);
                 } else
-                    pipe.updatedDrawnFlames(false);
+                    pipe.setHasDrawnFlames(false);
             }
         }
+
+        // Draw all weapons
+        for (AbstractWeapon wp: weapons)
+            if (wp.getPosition() != null)
+                wp.drawWeapon();
     }
 
     // Method to shift every pipe to the left
     public void leftShift() {
-        for (PipeSet pipe: gamePipes){
+        for (PipeSet pipe: gamePipes)
             pipe.leftShift();
-        }
+
+        for (AbstractWeapon wp: weapons)
+            if (wp.position != null)
+                wp.leftShift();
     }
 
     // Method to check collision with the next pipe set that has not been passed
     public boolean checkCollisionAndLives() {
         for (PipeSet pipe: gamePipes) {
-            if (pipe.getHasPassed()) {
+            if (pipe.getHasPassed())
                 continue;
-            }
+
             // At the next pipe which has not been passed
             if (pipe.checkCollision(BIRD)) {
                 BIRD.lifeLost();
-
                 if (BIRD.hasLives())
                     gamePipes.remove(pipe);
                 else
@@ -121,11 +162,13 @@ public class Pipes {
 
     // Method to pop pipe that has left the window
     public void checkPipeBounds() {
-        PipeSet head = gamePipes.peek();
-        if (head.getHasPassed())
-            if (head.getTopRectangle().right() < 0)
-                // Check the right side of pipe is beyond the window
-                gamePipes.remove();
+        if (!gamePipes.isEmpty()) {
+            PipeSet head = gamePipes.peek();
+            if (head.getHasPassed())
+                if (head.getTopRectangle().right() < 0)
+                    // Check the right side of pipe is beyond the window
+                    gamePipes.remove();
+        }
     }
 
     // Method to get score from after checking number of pipes passed

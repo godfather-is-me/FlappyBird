@@ -6,30 +6,28 @@ public class Bird {
     private final Image WING_UP;
     private final Image WING_DOWN;
     private final LifeBar LIFEBAR;
+    // private final AbstractWeapon WEAPON;
 
     private Point position;
     private double velocity;
 
     // Constants
+    private final double WIDTH;
     private final double ACCELERATION = 0.4;
     private final double TERMINAL_VELOCITY = 10.0;
     private final Point INITIAL_POSITION = new Point(200, 350);
 
     // Bird constructor
-    public Bird(int level) {
+    public Bird(Integer level) {
+        WING_UP = new Image("res/level-" + level.toString() + "/birdWingUp.png");
+        WING_DOWN = new Image("res/level-" + level.toString() + "/birdWingDown.png");
 
-        if (level == 0) {
-            // Load Images
-            WING_UP = new Image("res/level-0/birdWingUp.png");
-            WING_DOWN = new Image("res/level-0/birdWingDown.png");
-        } else {
-            WING_UP = new Image("res/level-1/birdWingUp.png");
-            WING_DOWN = new Image("res/level-1/birdWingDown.png");
-        }
-        // Load bird variables
         LIFEBAR = new LifeBar(level);
-        position = INITIAL_POSITION;
+
+        // Load bird variables
         velocity = 0;
+        position = INITIAL_POSITION;
+        WIDTH = WING_UP.getWidth();
     }
 
     // Method to flap bird wings once every 10 frames
@@ -76,6 +74,16 @@ public class Bird {
     // Method to get bounding box of the bird
     public Rectangle getBirdBoundingBox() {
         return WING_UP.getBoundingBoxAt(position);
+    }
+
+    // Method to get current position of the bird
+    public Point getPosition() {
+        return position;
+    }
+
+    // Method to get width of the bird
+    public double getWidth() {
+        return WIDTH;
     }
 
     // Method to update lifeBar after collision
