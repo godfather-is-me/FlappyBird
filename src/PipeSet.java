@@ -19,7 +19,6 @@ public class PipeSet {
     private double speed;
     private boolean hasPassed;
     private boolean hasDrawnFlames;
-    private boolean hasWeaponAfter;
 
     // Constants
     private final int LEVEL;
@@ -52,7 +51,6 @@ public class PipeSet {
 
         hasPassed = false;
         hasDrawnFlames = false;
-        hasWeaponAfter = false;
         this.speed = speed;
         this.LEVEL = level;
     }
@@ -78,51 +76,6 @@ public class PipeSet {
             topFlamePosition = new Point(topFlamePosition.x - speed, topFlamePosition.y);
             botFlamePosition = new Point(botFlamePosition.x - speed, botFlamePosition.y);
         }
-    }
-
-    // Method to return rectangle of top pipe
-    public Rectangle getTopRectangle() {
-        return TOP.getBoundingBoxAt(topPosition);
-    }
-
-    // Method to return rectangle of bottom pipe
-    public Rectangle getBotRectangle() {
-        return BOTTOM.getBoundingBoxAt(botPosition);
-    }
-
-    // Method to return if pipe has been passed by bird
-    public boolean getHasPassed() {
-        return hasPassed;
-    }
-
-    // Getter for pipe level
-    public int getLevel() {
-        return LEVEL;
-    }
-
-    // Getter for width of the pipe
-    public double getWidth() {
-        return TOP.getWidth();
-    }
-
-    // Method to get hasWeaponAfter to see if weapon exists after pipe
-    public boolean getHasWeaponAfter() {
-        return hasWeaponAfter;
-    }
-
-    // Method to modify speed based on the increase/decrease
-    public void setSpeed(double speed) {
-        this.speed = speed;
-    }
-
-    // Method to update hasDrawnFlames if flames are seen
-    public void setHasDrawnFlames(boolean hasDrawnFlames) {
-        this.hasDrawnFlames = hasDrawnFlames;
-    }
-
-    // Method to set hasWeapon if weapon has been placed after the pipe
-    public void setHasWeaponAfter(boolean hasWeaponAfter) {
-        this.hasWeaponAfter = hasWeaponAfter;
     }
 
     // Method to check bird collision with pipe set
@@ -160,5 +113,40 @@ public class PipeSet {
             hasPassed = true;
         }
         return hasPassed;
+    }
+
+    // Method to return rectangle of top pipe
+    public Rectangle getTopRectangle() {
+        return TOP.getBoundingBoxAt(topPosition);
+    }
+
+    // Method to return rectangle of bottom pipe
+    public Rectangle getBotRectangle() {
+        return BOTTOM.getBoundingBoxAt(botPosition);
+    }
+
+    // Method to return if pipe has been passed by bird
+    public boolean getHasPassed() {
+        return hasPassed;
+    }
+
+    // Getter for pipe level
+    public int getLevel() {
+        return LEVEL;
+    }
+
+    // Getter for width of the pipe
+    public double getWidth() {
+        return TOP.getWidth();
+    }
+
+    // Method to modify speed based on the increase/decrease
+    public void setSpeed(double speed) {
+        this.speed = speed;
+    }
+
+    // Method to update hasDrawnFlames if flames are seen
+    public void setHasDrawnFlames(boolean hasDrawnFlames) {
+        this.hasDrawnFlames = hasDrawnFlames;
     }
 }

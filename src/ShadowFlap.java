@@ -1,3 +1,5 @@
+import bagel.*;
+
 /**
  * Skeleton Code for SWEN20003 Project 2, Semester 2, 2021
  *
@@ -7,13 +9,11 @@
  *
  */
 
-import bagel.*;
-
 public class ShadowFlap extends AbstractGame {
     private final Messages MESSAGES;
     // Constants
-    private final int LEVEL0_SCORE = 0;
-    private final int LEVEL1_SCORE = 25;
+    public static final int LEVEL0_SCORE = 10;
+    public static final int LEVEL1_SCORE = 30;
 
     // Game objects
     private Background BACKGROUND;
@@ -110,7 +110,7 @@ public class ShadowFlap extends AbstractGame {
                 // Check collision or game won
                 checkGameOver();
 
-                // Move pipes to the left
+                // Move objects to the left
                 MANAGER.leftShift();
             } else {
                 // Game over

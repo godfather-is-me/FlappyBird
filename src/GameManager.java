@@ -3,18 +3,18 @@ import java.util.*;
 public class GameManager {
     // Constants
     public static final int PIPE_SPAWN_LENGTH = 150;
-    private final int FLAME_SPAWN_LENGTH = 20;
+    public static final int FLAME_SPAWN_LENGTH = 20;
     public static final int Y_LOWER_BOUND = 100;
     public static final int Y_UPPER_BOUND = 500;
     private final int[] LEVEL0_GAPS = {100, 300, 500};
 
     // Store all pipes from current window in a Queue
-    private final Queue<PipeSet> gamePipes;
-    private final Queue<AbstractWeapon> weapons;
+    private final Queue<PipeSet> GAME_PIPES;
+    private final Queue<AbstractWeapon> WEAPONS;
     private final Bird BIRD;
 
     // Game variables
-    private final int level;
+    private final int LEVEL;
     private int score;
     private int frameCounter;
     private int timeScale;
@@ -23,16 +23,16 @@ public class GameManager {
 
     public GameManager(int level, Bird bird) {
         // Load objects
-        gamePipes = new LinkedList<>();
-        weapons = new LinkedList<>();
         this.BIRD = bird;
+        GAME_PIPES = new LinkedList<>();
+        WEAPONS = new LinkedList<>();
 
         // Game variables
         score = 0;
         speed = 3.0;
         timeScale = 1;
         flameDuration = 0;
-        this.level = level;
+        this.LEVEL = level;
     }
 
     // Method to draw every pipe and weapon from queue
@@ -47,24 +47,24 @@ public class GameManager {
         checkWeaponBounds();
 
         // Draw all pipes in queue
-        for(PipeSet pipe : gamePipes){
-            pipe.drawPipes();
+        for(PipeSet pipeSet : GAME_PIPES){
+            pipeSet.drawPipes();
 
             // Draw flames
-            if (pipe.getLevel() == 1) {
+            if (pipeSet.getLevel() == 1) {
                 if ((frameCounter % FLAME_SPAWN_LENGTH) == 0)
                     flameDuration = frameCounter + 3;
                 if (frameCounter < flameDuration) {
-                    pipe.drawFlames();
-                    pipe.setHasDrawnFlames(true);
+                    pipeSet.drawFlames();
+                    pipeSet.setHasDrawnFlames(true);
                 } else
-                    pipe.setHasDrawnFlames(false);
+                    pipeSet.setHasDrawnFlames(false);
             }
         }
 
         // Draw all weapons in queue
-        for (AbstractWeapon wp: weapons)
-            wp.drawWeapon();
+        for (AbstractWeapon weapon: WEAPONS)
+            weapon.drawWeapon();
 
         // Draw bird
         BIRD.drawBird(frameCounter);
@@ -73,7 +73,7 @@ public class GameManager {
     // Method to add objects to the queues
     public void addObjects() {
         // Add pipes to the queue every 100 frames
-        if (gamePipes.isEmpty())
+        if (GAME_PIPES.isEmpty())
             addPipeSet();
         else if ((frameCounter % PIPE_SPAWN_LENGTH) == 0)
             addPipeSet();
@@ -83,47 +83,47 @@ public class GameManager {
     public void addPipeSet() {
         Random rand = new Random();
         // Choose only plastic pipes
-        if (level == 0)
-            gamePipes.add(new PipeSet(level, LEVEL0_GAPS[rand.nextInt(LEVEL0_GAPS.length)], speed));
+        if (LEVEL == 0)
+            GAME_PIPES.add(new PipeSet(LEVEL, LEVEL0_GAPS[rand.nextInt(LEVEL0_GAPS.length)], speed));
         else {
             int randPipe = rand.nextInt(2);
             int randY = rand.nextInt(Y_UPPER_BOUND - Y_LOWER_BOUND) + Y_LOWER_BOUND;
             PipeSet tempPipe = new PipeSet(randPipe, randY, speed);
             // Add weapon and pipe set
-            gamePipes.add(tempPipe);
+            GAME_PIPES.add(tempPipe);
             addWeapon(tempPipe);
         }
     }
 
     // Method to add new weapon set into Queue
-    public void addWeapon(PipeSet pipe) {
+    public void addWeapon(PipeSet pipeSet) {
         Random rand = new Random();
         if (rand.nextInt(2) == 0)
-            weapons.add(new Rock(pipe));
+            WEAPONS.add(new Rock(pipeSet));
         else
-            weapons.add(new Bomb(pipe));
+            WEAPONS.add(new Bomb(pipeSet));
     }
 
     // Method to shift every pipe to the left
     public void leftShift() {
-        for (PipeSet pipe: gamePipes)
-            pipe.leftShift();
+        for (PipeSet pipeSet: GAME_PIPES)
+            pipeSet.leftShift();
 
-        for (AbstractWeapon wp: weapons)
-            wp.leftShift();
+        for (AbstractWeapon weapon: WEAPONS)
+            weapon.leftShift();
     }
 
     // Method to check collision with the next pipe set that has not been passed
     public boolean checkCollisionAndLives() {
-        for (PipeSet pipe: gamePipes) {
-            if (pipe.getHasPassed())
+        for (PipeSet pipeSet: GAME_PIPES) {
+            if (pipeSet.getHasPassed())
                 continue;
 
             // At the next pipe which has not been passed
-            if (pipe.checkBirdCollision(BIRD) || pipe.checkWeaponCollision(BIRD)) {
+            if (pipeSet.checkBirdCollision(BIRD) || pipeSet.checkWeaponCollision(BIRD)) {
                 BIRD.lifeLost();
                 if (BIRD.hasLives())
-                    gamePipes.remove(pipe);
+                    GAME_PIPES.remove(pipeSet);
                 else
                  // Bird has collided and no lives left
                  return  true;
@@ -131,9 +131,9 @@ public class GameManager {
 
             // Check if the weapon has collided with pipe when shot
             if (BIRD.getHasShotWeapon()) {
-                if (BIRD.getWeapon().checkDestruction(pipe)) {
+                if (BIRD.getWeapon().checkDestruction(pipeSet)) {
                     score += 1;
-                    gamePipes.remove(pipe);
+                    GAME_PIPES.remove(pipeSet);
                     BIRD.removeWeapon();
                 }
             }
@@ -146,15 +146,15 @@ public class GameManager {
 
     // Method to check if bird has passed the next pipe set that has not been passed
     public void checkPass() {
-        for (PipeSet pipe: gamePipes) {
-            if (pipe.getHasPassed())
+        for (PipeSet pipeSet: GAME_PIPES) {
+            if (pipeSet.getHasPassed())
                 continue;
-            if (pipe.checkPass(BIRD))
+            if (pipeSet.checkPass(BIRD))
                 score += 1;
             break;
         }
 
-        for (AbstractWeapon weapon: weapons){
+        for (AbstractWeapon weapon: WEAPONS){
             if (weapon.getHasPassed())
                 continue;
             weapon.checkPass(BIRD);
@@ -164,36 +164,36 @@ public class GameManager {
 
     // Method to pop the pipe that has left the window
     public void checkPipeBounds() {
-        if (!gamePipes.isEmpty()) {
-            PipeSet head = gamePipes.peek();
+        if (!GAME_PIPES.isEmpty()) {
+            PipeSet head = GAME_PIPES.peek();
             if (head.getHasPassed())
                 if (head.getTopRectangle().right() < 0)
                     // Check the right side of pipe is beyond the window
-                    gamePipes.remove();
+                    GAME_PIPES.remove();
         }
     }
 
     // Method to pop the weapon that has left the window
     public void checkWeaponBounds() {
-        if (!weapons.isEmpty()) {
-            AbstractWeapon head = weapons.peek();
+        if (!WEAPONS.isEmpty()) {
+            AbstractWeapon head = WEAPONS.peek();
             if (head.getHasPassed())
                 if (head.getBox().right() < 0)
-                    weapons.remove();
+                    WEAPONS.remove();
         }
     }
 
     // Method to see if the weapon has been picked up or not
     public void pickWeapon() {
         if (!BIRD.getHasPickedWeapon()) {
-            for (AbstractWeapon weapon : weapons) {
+            for (AbstractWeapon weapon : WEAPONS) {
                 if (weapon.getHasPassed())
                     continue;
 
                 if (weapon.checkPickUp(BIRD)) {
-                    weapon.isPicked = true;
+                    weapon.setIsPicked(true);
                     BIRD.setWeapon(weapon);
-                    weapons.remove(weapon);
+                    WEAPONS.remove(weapon);
                     break;
                 }
             }
@@ -218,8 +218,8 @@ public class GameManager {
             if (timeScale < 5) {
                 timeScale += 1;
                 speed += 1.5;
-                for (PipeSet pipe: gamePipes)
-                    pipe.setSpeed(speed);
+                for (PipeSet pipeSet: GAME_PIPES)
+                    pipeSet.setSpeed(speed);
             }
     }
 
@@ -229,8 +229,8 @@ public class GameManager {
             if (timeScale > 1) {
                 timeScale -= 1;
                 speed -= 1.5;
-                for (PipeSet pipe: gamePipes)
-                    pipe.setSpeed(speed);
+                for (PipeSet pipeSet: GAME_PIPES)
+                    pipeSet.setSpeed(speed);
             }
     }
 

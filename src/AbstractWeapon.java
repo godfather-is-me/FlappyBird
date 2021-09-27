@@ -19,7 +19,7 @@ public abstract class AbstractWeapon {
     protected final int WEAPON_TYPE;        // 0 for stone, 1 for bomb
 
     // Constructor
-    public AbstractWeapon (int range, Image weapon, int type, PipeSet pipe) {
+    public AbstractWeapon (int range, Image weapon, int type, PipeSet pipeSet) {
         this.WEAPON = weapon;
         this.RANGE = range;
         this.WEAPON_TYPE = type;
@@ -31,12 +31,11 @@ public abstract class AbstractWeapon {
         isShot = false;
         isPicked = false;
         hasPassed = false;
-
-        position = setInitialPosition(pipe);
+        position = setInitialPosition(pipeSet);
     }
 
     // Method to set initial position of the weapon at random coordinates
-    public Point setInitialPosition(PipeSet pipe) {
+    public Point setInitialPosition(PipeSet pipeSet) {
         Random rand = new Random();
 
         // Constants from game manager
@@ -46,11 +45,10 @@ public abstract class AbstractWeapon {
         double speed = GameManager.speed;
 
         // Distance to next pipe
-        double distance = (pipeSpawnLength * speed) - (pipe.getWidth() + getWidth());
-        int x = rand.nextInt((int) distance) + Window.getWidth() + (int) (pipe.getWidth() / 2);
+        double distance = (pipeSpawnLength * speed) - (pipeSet.getWidth() + getWidth());
+        int x = rand.nextInt((int) distance) + Window.getWidth() + (int) ((pipeSet.getWidth() + getWidth()) / 2);
         int y = rand.nextInt(upperBound - lowerBound) + lowerBound;
 
-        pipe.setHasWeaponAfter(true);
         return new Point(x, y);
     }
 
@@ -62,10 +60,9 @@ public abstract class AbstractWeapon {
     }
 
     // Method to check if weapon has passed the bird's y-coordinate
-    public boolean checkPass(Bird bird) {
+    public void checkPass(Bird bird) {
         if (bird.getPosition().x > WEAPON.getBoundingBoxAt(position).right())
             hasPassed = true;
-        return hasPassed;
     }
 
     // Method to update position of weapon with bird
@@ -87,22 +84,15 @@ public abstract class AbstractWeapon {
 
     // Method to check if weapon fired is out of range
     public boolean checkOutOfRange() {
-        if (isShot)
-            if (currentDistance <= RANGE)
-                return false;
-        return true;
+        return currentDistance > RANGE;
     }
 
     // Method to check if weapon and pipes intersect when shot
-    public boolean checkDestruction(PipeSet pipe) {
-        if (isShot) {
-            // Check for plastic pipe
-            if ((pipe.getLevel() == 0) || (pipe.getLevel() == 1 && WEAPON_TYPE == 1)){
-                // Intersection of pipe and weapon
-                if (pipe.getTopRectangle().intersects(WEAPON.getBoundingBoxAt(position)))
-                    return true;
-                return pipe.getBotRectangle().intersects(WEAPON.getBoundingBoxAt(position));
-            }
+    public boolean checkDestruction(PipeSet pipeSet) {
+        if ((pipeSet.getLevel() == 0) || (pipeSet.getLevel() == 1 && WEAPON_TYPE == 1)){
+            if (pipeSet.getTopRectangle().intersects(getBox()))
+                return true;
+            return pipeSet.getBotRectangle().intersects(getBox());
         }
         return false;
     }
@@ -114,16 +104,13 @@ public abstract class AbstractWeapon {
 
     // Method to shoot weapon (change position every frame by speed)
     public void shootWeapon() {
-        if (isPicked) {
-            isPicked = false;
-            isShot = true;
-        }
+        isPicked = false;
+        isShot = true;
     }
 
     // Method to move shift weapon to the left with every frame
     public void leftShift() {
-        if (!isShot)
-            position = new Point(position.x - moveSpeed, position.y);
+        position = new Point(position.x - moveSpeed, position.y);
     }
 
     // Method to get bounding box of weapon
@@ -136,16 +123,6 @@ public abstract class AbstractWeapon {
         return WEAPON.getWidth();
     }
 
-    // Method to get position
-    public Point getPosition() {
-        return position;
-    }
-
-    // Method to set position, used initially
-    public void setPosition(Point initialPosition) {
-        position = initialPosition;
-    }
-
     // Method to get hasPassed
     public boolean getHasPassed() {
         return hasPassed;
@@ -154,11 +131,6 @@ public abstract class AbstractWeapon {
     // Method to set isPicked
     public void setIsPicked(boolean isPicked) {
         this.isPicked = isPicked;
-    }
-
-    // Method to get isPicked
-    public boolean getIsPicked() {
-        return isPicked;
     }
 
     // Method to set isShot
