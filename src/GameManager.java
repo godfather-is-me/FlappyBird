@@ -120,7 +120,7 @@ public class GameManager {
                 continue;
 
             // At the next pipe which has not been passed
-            if (pipeSet.checkBirdCollision(BIRD) || pipeSet.checkWeaponCollision(BIRD)) {
+            if (pipeSet.birdWeaponCollision(BIRD)) {
                 BIRD.lifeLost();
                 if (BIRD.hasLives())
                     GAME_PIPES.remove(pipeSet);
@@ -149,7 +149,7 @@ public class GameManager {
         for (PipeSet pipeSet: GAME_PIPES) {
             if (pipeSet.getHasPassed())
                 continue;
-            if (pipeSet.checkPass(BIRD))
+            if (pipeSet.checkBirdPass(BIRD))
                 score += 1;
             break;
         }
@@ -157,7 +157,7 @@ public class GameManager {
         for (AbstractWeapon weapon: WEAPONS){
             if (weapon.getHasPassed())
                 continue;
-            weapon.checkPass(BIRD);
+            weapon.checkBirdPass(BIRD);
             break;
         }
     }
@@ -165,21 +165,16 @@ public class GameManager {
     // Method to pop the pipe that has left the window
     public void checkPipeBounds() {
         if (!GAME_PIPES.isEmpty()) {
-            PipeSet head = GAME_PIPES.peek();
-            if (head.getHasPassed())
-                if (head.getTopRectangle().right() < 0)
-                    // Check the right side of pipe is beyond the window
-                    GAME_PIPES.remove();
+            if (GAME_PIPES.peek().checkWindowBounds())
+                GAME_PIPES.remove();
         }
     }
 
     // Method to pop the weapon that has left the window
     public void checkWeaponBounds() {
         if (!WEAPONS.isEmpty()) {
-            AbstractWeapon head = WEAPONS.peek();
-            if (head.getHasPassed())
-                if (head.getBox().right() < 0)
-                    WEAPONS.remove();
+            if (WEAPONS.peek().checkWindowBounds())
+                WEAPONS.remove();
         }
     }
 

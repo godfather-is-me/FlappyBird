@@ -3,7 +3,7 @@ import bagel.util.*;
 
 import java.util.Random;
 
-public abstract class AbstractWeapon {
+public abstract class AbstractWeapon implements Spawnable{
     // Variables
     protected Point position;
     protected int shootSpeed;
@@ -60,9 +60,17 @@ public abstract class AbstractWeapon {
     }
 
     // Method to check if weapon has passed the bird's y-coordinate
-    public void checkPass(Bird bird) {
+    public boolean checkBirdPass(Bird bird) {
         if (bird.getPosition().x > WEAPON.getBoundingBoxAt(position).right())
             hasPassed = true;
+        return hasPassed;
+    }
+
+    // Method to check if weapon is out of bounds
+    public boolean checkWindowBounds() {
+        if (hasPassed)
+            return getBox().right() < 0;
+        return false;
     }
 
     // Method to update position of weapon with bird

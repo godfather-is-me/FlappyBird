@@ -3,7 +3,7 @@ import bagel.util.*;
 
 import java.lang.Math;
 
-public class PipeSet {
+public class PipeSet implements Spawnable{
     private final Image TOP;
     private final Image BOTTOM;
     private final Image TOP_FLAME;
@@ -16,21 +16,21 @@ public class PipeSet {
     private Point botFlamePosition;
 
     // Game variables
-    private double speed;
+    private double moveSpeed;
     private boolean hasPassed;
     private boolean hasDrawnFlames;
 
     // Constants
     private final int LEVEL;
     private final int SPACING = 168;
-    private final String[] PIPE_TYPES = {"plastic", "steel"};
+    private final String[] PIPE_TYPES = {"/plastic", "/steel"};
 
     // Pipes constructor
-    public PipeSet(Integer level, int centre, double speed) {
+    public PipeSet(Integer level, int centre, double moveSpeed) {
         String str_lvl = level.toString();
 
-        TOP = new Image("res/level-" + str_lvl + "/" + PIPE_TYPES[level] + "Pipe.png");
-        BOTTOM = new Image("res/level-" + str_lvl + "/" + PIPE_TYPES[level] + "Pipe.png");
+        TOP = new Image("res/level-" + str_lvl + PIPE_TYPES[level] + "Pipe.png");
+        BOTTOM = new Image("res/level-" + str_lvl + PIPE_TYPES[level] + "Pipe.png");
 
         TOP_FLAME = new Image("res/level-1/flame.png");
         BOT_FLAME = new Image("res/level-1/flame.png");
@@ -51,7 +51,7 @@ public class PipeSet {
 
         hasPassed = false;
         hasDrawnFlames = false;
-        this.speed = speed;
+        this.moveSpeed = moveSpeed;
         this.LEVEL = level;
     }
 
@@ -69,47 +69,43 @@ public class PipeSet {
 
     // Method to move pipe to the left at a constant speed
     public void leftShift() {
-        topPosition = new Point(topPosition.x - speed, topPosition.y);
-        botPosition = new Point(botPosition.x - speed, botPosition.y);
+        topPosition = new Point(topPosition.x - moveSpeed, topPosition.y);
+        botPosition = new Point(botPosition.x - moveSpeed, botPosition.y);
 
         if (LEVEL == 1) {
-            topFlamePosition = new Point(topFlamePosition.x - speed, topFlamePosition.y);
-            botFlamePosition = new Point(botFlamePosition.x - speed, botFlamePosition.y);
+            topFlamePosition = new Point(topFlamePosition.x - moveSpeed, topFlamePosition.y);
+            botFlamePosition = new Point(botFlamePosition.x - moveSpeed, botFlamePosition.y);
         }
     }
 
     // Method to check bird collision with pipe set
-    public boolean checkBirdCollision(Bird bird) {
-        Rectangle birdBox = bird.getBirdBoundingBox();
-
-        // Check if flames are drawn
-        if (hasDrawnFlames) {
-            if (birdBox.intersects(TOP_FLAME.getBoundingBoxAt(topFlamePosition)))
-                return true;
-            else if (birdBox.intersects(BOT_FLAME.getBoundingBoxAt(botFlamePosition)))
-                return true;
-        }
-        return (birdBox.intersects(getTopRectangle()) || birdBox.intersects(getBotRectangle()));
+    public boolean birdWeaponCollision(Bird bird) {
+        if (bird.getHasPickedWeapon())
+            return checkCollision(bird.getWeapon().getBox());
+        return checkCollision(bird.getBirdBoundingBox());
     }
 
-    public boolean checkWeaponCollision(Bird bird) {
-        if (bird.getHasPickedWeapon()) {
-            Rectangle weaponBox = bird.getWeapon().getBox();
-            // Check if flames are drawn
-            if (hasDrawnFlames) {
-                if (weaponBox.intersects(TOP_FLAME.getBoundingBoxAt(topFlamePosition)))
-                    return true;
-                else if (weaponBox.intersects(BOT_FLAME.getBoundingBoxAt(botFlamePosition)))
-                    return true;
-            }
-            return (weaponBox.intersects(getTopRectangle()) || weaponBox.intersects(getBotRectangle()));
-        }
+    // Method to check if pipeSet is out of the window
+    public boolean checkWindowBounds() {
+        if (hasPassed)
+            return getBox().right() < 0;
         return false;
     }
 
+    // Method to generalize check collision for rectangles
+    public boolean checkCollision(Rectangle box) {
+        if (hasDrawnFlames) {
+            if (box.intersects(TOP_FLAME.getBoundingBoxAt(topFlamePosition)))
+                return true;
+            else if (box.intersects(BOT_FLAME.getBoundingBoxAt(botFlamePosition)))
+                return true;
+        }
+        return (box.intersects(getTopRectangle()) || box.intersects(getBotRectangle()));
+    }
+
     // Method to check if bird has passed pipe set
-    public boolean checkPass(Bird bird) {
-        if (bird.getPosition().x > getTopRectangle().right()){
+    public boolean checkBirdPass(Bird bird) {
+        if (bird.getPosition().x > getBox().right()){
             hasPassed = true;
         }
         return hasPassed;
@@ -123,6 +119,11 @@ public class PipeSet {
     // Method to return rectangle of bottom pipe
     public Rectangle getBotRectangle() {
         return BOTTOM.getBoundingBoxAt(botPosition);
+    }
+
+    // Method similar to getTopRectangle
+    public Rectangle getBox() {
+        return getTopRectangle();
     }
 
     // Method to return if pipe has been passed by bird
@@ -141,8 +142,8 @@ public class PipeSet {
     }
 
     // Method to modify speed based on the increase/decrease
-    public void setSpeed(double speed) {
-        this.speed = speed;
+    public void setSpeed(double moveSpeed) {
+        this.moveSpeed = moveSpeed;
     }
 
     // Method to update hasDrawnFlames if flames are seen
