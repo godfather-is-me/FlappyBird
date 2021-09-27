@@ -1,6 +1,8 @@
 import bagel.*;
 import bagel.util.*;
 
+import java.util.Random;
+
 public abstract class AbstractWeapon {
     // Variables
     protected Point position;
@@ -8,21 +10,45 @@ public abstract class AbstractWeapon {
     protected int moveSpeed;
     protected boolean isShot;
     protected boolean isPicked;
+    protected boolean hasPassed;
 
     // Constants
     protected final Image WEAPON;
     protected final int RANGE;
     protected final int WEAPON_TYPE;        // 0 for stone, 1 for bomb
 
-
     // Constructor
-    public AbstractWeapon (int range, Image weapon, int type) {
+    public AbstractWeapon (int range, Image weapon, int type, PipeSet pipe) {
         this.WEAPON = weapon;
         this.RANGE = range;
         this.WEAPON_TYPE = type;
 
         moveSpeed = 3;
         shootSpeed = 5;
+
+        isShot = false;
+        isPicked = false;
+        hasPassed = false;
+
+        position = setInitialPosition(pipe);
+    }
+
+    // Method to set initial position of the weapon at random coordinates
+    public Point setInitialPosition(PipeSet pipe) {
+        Random rand = new Random();
+
+        int pipeSpawnLength = GameManager.PIPE_SPAWN_LENGTH;
+        int upperBound = GameManager.Y_UPPER_BOUND;
+        int lowerBound = GameManager.Y_LOWER_BOUND;
+        double speed = GameManager.speed;
+
+        // Distance to next pipe
+        double distance = (pipeSpawnLength * speed) - (pipe.getWidth() + getWidth());
+        int x = rand.nextInt((int) distance) + Window.getWidth() + (int) (pipe.getWidth() / 2);
+        int y = rand.nextInt(upperBound - lowerBound) + lowerBound;
+
+        pipe.setHasWeaponAfter(true);
+        return new Point(x, y);
     }
 
     // Method to check if weapon and bird intersect
@@ -30,6 +56,16 @@ public abstract class AbstractWeapon {
         if (!isPicked)
             return getBox().intersects(bird.getBirdBoundingBox());
         return false;
+    }
+
+    // Method to check if weapon has passed the bird's y-coordinate
+    public boolean checkHasPassed(Bird bird) {
+        Rectangle birdBox = bird.getBirdBoundingBox();
+        if (position != null)
+            if (birdBox.left() > WEAPON.getBoundingBoxAt(position).right()){
+                hasPassed = true;
+            }
+        return hasPassed;
     }
 
     // Method to check if weapon and pipes/flames intersect when bird carries
@@ -114,5 +150,10 @@ public abstract class AbstractWeapon {
     // Method to set position, used initially
     public void setPosition(Point initialPosition) {
         position = initialPosition;
+    }
+
+    // Method to get hasPassed
+    public boolean getHasPassed() {
+        return hasPassed;
     }
 }

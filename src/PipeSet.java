@@ -126,7 +126,7 @@ public class PipeSet {
     }
 
     // Method to check bird collision with pipe set
-    public boolean checkCollision(Bird bird) {
+    public boolean checkBirdCollision(Bird bird) {
         Rectangle birdBox = bird.getBirdBoundingBox();
         // Check if flames are drawn
         if (hasDrawnFlames) {
@@ -139,15 +139,18 @@ public class PipeSet {
     }
 
     public boolean checkWeaponCollision(AbstractWeapon weapon) {
-        Rectangle weaponBox = weapon.getBox();
-        // Check if flames are drawn
-        if (hasDrawnFlames) {
-            if (weaponBox.intersects(TOP_FLAME.getBoundingBoxAt(topFlamePosition)))
-                return true;
-            else if (weaponBox.intersects(BOT_FLAME.getBoundingBoxAt(botFlamePosition)))
-                return true;
+        if (weapon.isPicked) {
+            Rectangle weaponBox = weapon.getBox();
+            // Check if flames are drawn
+            if (hasDrawnFlames) {
+                if (weaponBox.intersects(TOP_FLAME.getBoundingBoxAt(topFlamePosition)))
+                    return true;
+                else if (weaponBox.intersects(BOT_FLAME.getBoundingBoxAt(botFlamePosition)))
+                    return true;
+            }
+            return (weaponBox.intersects(getTopRectangle()) || weaponBox.intersects(getBotRectangle()));
         }
-        return (weaponBox.intersects(getTopRectangle()) || weaponBox.intersects(getBotRectangle()));
+        return false;
     }
 
     // Method to check if bird has passed pipe set

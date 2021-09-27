@@ -6,10 +6,11 @@ public class Bird {
     private final Image WING_UP;
     private final Image WING_DOWN;
     private final LifeBar LIFEBAR;
-    // private final AbstractWeapon WEAPON;
+    private AbstractWeapon WEAPON;
 
     private Point position;
     private double velocity;
+    private boolean hasPickedWeapon;
 
     // Constants
     private final double WIDTH;
@@ -23,11 +24,12 @@ public class Bird {
         WING_DOWN = new Image("res/level-" + level.toString() + "/birdWingDown.png");
 
         LIFEBAR = new LifeBar(level);
+        WIDTH = WING_UP.getWidth();
 
         // Load bird variables
         velocity = 0;
         position = INITIAL_POSITION;
-        WIDTH = WING_UP.getWidth();
+        hasPickedWeapon = false;
     }
 
     // Method to flap bird wings once every 10 frames
@@ -36,6 +38,9 @@ public class Bird {
             WING_UP.draw(position.x, position.y);
         else
             WING_DOWN.draw(position.x, position.y);
+
+        // Apply gravity effect
+        gravity();
 
         // Bird's lives
         LIFEBAR.drawLifeBar();

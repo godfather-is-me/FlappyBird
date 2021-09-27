@@ -1,5 +1,3 @@
-import bagel.*;
-
 /**
  * Skeleton Code for SWEN20003 Project 2, Semester 2, 2021
  *
@@ -9,15 +7,19 @@ import bagel.*;
  *
  */
 
+import bagel.*;
+
 public class ShadowFlap extends AbstractGame {
     private final Messages MESSAGES;
     // Constants
-    private final int LEVEL0_SCORE = 2;
+    private final int LEVEL0_SCORE = 0;
     private final int LEVEL1_SCORE = 5;
+
     // Game objects
     private Background BACKGROUND;
     private Bird BIRD;
-    private Pipes PIPES;
+    private GameManager MANAGER;
+
     // Game variables
     private Integer score;
     private Integer level;
@@ -43,7 +45,7 @@ public class ShadowFlap extends AbstractGame {
         // Load objects
         BACKGROUND = new Background(level);
         BIRD = new Bird(level);
-        PIPES = new Pipes(level, BIRD);
+        MANAGER = new GameManager(level, BIRD);
         MESSAGES = new Messages();
     }
 
@@ -85,31 +87,25 @@ public class ShadowFlap extends AbstractGame {
             // Game has started
             if (!gameOver) {
                 // Draw pipes
-                PIPES.drawPipes();
-
-                // Draw bird with its lives
-                BIRD.drawBird(frameCounter);
+                MANAGER.drawObjects();
 
                 // Draw Score message
                 MESSAGES.getCurrentScore(score);
-
-                // Apply gravity acceleration
-                BIRD.gravity();
 
                 // Allow bird to jump
                 BIRD.pressedSpace(input.wasPressed(Keys.SPACE));
 
                 // Increase speed with L key
-                PIPES.speedUp(input.wasPressed(Keys.L));
+                MANAGER.speedUp(input.wasPressed(Keys.L));
 
                 // Decrease speed with K key
-                PIPES.slowDown(input.wasPressed(Keys.K));
+                MANAGER.slowDown(input.wasPressed(Keys.K));
 
                 // Check collision or game won
                 checkGameOver();
 
                 // Move pipes to the left
-                PIPES.leftShift();
+                MANAGER.leftShift();
             } else {
                 // Game over
                 if (gameWon)
@@ -129,11 +125,11 @@ public class ShadowFlap extends AbstractGame {
     // Method to check if the game won or lost
     public void checkGameOver() {
         // Collision with pipes/Out of bounds and no lives left
-        if (PIPES.checkCollisionAndLives() || BIRD.checkOutOfBoundsAndLives())
+        if (MANAGER.checkCollisionAndLives() || BIRD.checkOutOfBoundsAndLives())
             gameOver = true;
         // Has passed the pipes successfully
-        else if (PIPES.checkPass()) {
-            score = PIPES.getScore();
+        else if (MANAGER.checkPass()) {
+            score = MANAGER.getScore();
             if (level == 0) {
                 if (score >= LEVEL0_SCORE) {
                     level = 1;
@@ -158,7 +154,7 @@ public class ShadowFlap extends AbstractGame {
             score = 0;
             // Load objects
             BIRD = new Bird(level);
-            PIPES = new Pipes(level, BIRD);
+            MANAGER = new GameManager(level, BIRD);
             BACKGROUND = new Background(level);
             loadedObjects = true;
         }

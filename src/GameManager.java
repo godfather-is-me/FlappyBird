@@ -3,9 +3,12 @@ import bagel.util.Point;
 
 import java.util.*;
 
-public class Pipes {
+public class GameManager {
     // Constants
-    private final int PIPE_SPAWN_LENGTH = 150;
+    public static final int PIPE_SPAWN_LENGTH = 150;
+    private final int FLAME_SPAWN_LENGTH = 20;
+    public static final int Y_LOWER_BOUND = 100;
+    public static final int Y_UPPER_BOUND = 500;
     private final int[] LEVEL0_GAPS = {100, 300, 500};
 
     // Store all pipes from current window in a Queue
@@ -18,10 +21,10 @@ public class Pipes {
     private int score;
     private int frameCounter;
     private int timeScale;
-    private double speed;
-    private int frameDuration;
+    private int flameDuration;
+    public static double speed;
 
-    public Pipes(int level, Bird bird) {
+    public GameManager(int level, Bird bird) {
         // Load objects
         gamePipes = new LinkedList<>();
         weapons = new LinkedList<>();
@@ -31,76 +34,30 @@ public class Pipes {
         score = 0;
         speed = 3.0;
         timeScale = 1;
-        frameDuration = 0;
+        flameDuration = 0;
         this.level = level;
     }
 
-    // Method to add new Pipe set into Queue
-    public void addPipeSet() {
-        Random rand = new Random();
-        if (level == 0)
-            // Choose only plastic pipes
-            gamePipes.add(new PipeSet(level, LEVEL0_GAPS[rand.nextInt(LEVEL0_GAPS.length)], speed));
-        else {
-            // Random y between 100-500
-            int randY = rand.nextInt(400) + 100;
-            int randPipe = rand.nextInt(2);
-            gamePipes.add(new PipeSet(randPipe, randY, speed));
-        }
-    }
-
-    // Method to add new weapon set into Queue
-    public void addWeapon(PipeSet pipe) {
-        // Random rand = new Random();
-        Bomb tempBomb = new Bomb();
-        weapons.add(tempBomb);
-        weaponStartPosition(pipe, tempBomb);
-    }
-
-    // Method to randomize x location of weapon
-    public void weaponStartPosition(PipeSet pipe, AbstractWeapon wp) {
-        Random rand = new Random();
-        if (!pipe.getHasWeaponAfter()) {
-            // Both top and bottom have the same right x
-            if (pipe.getTopRectangle().right() < Window.getWidth()){
-                // Distance to next pipe
-                double distance = PIPE_SPAWN_LENGTH * speed;
-                // Available x coordinates
-                distance -= (pipe.getWidth() + wp.getWidth());
-                int x = (int) (rand.nextInt((int) distance) + pipe.getTopRectangle().right());
-                int y = rand.nextInt(400) + 100;
-                wp.setPosition(new Point(x, y));
-                pipe.setHasWeaponAfter(true);
-            }
-        }
-
-    }
-
-    // Method to draw every pipe from queue
-    public void drawPipes() {
+    // Method to draw every pipe and weapon from queue
+    public void drawObjects() {
         frameCounter += 1;
 
-        // Spawn every 100 frames
-        if (gamePipes.isEmpty()){
-            addPipeSet();
-        }
+        // Add weapons and pipes according to specs
+        addObjects();
 
-        else if ((frameCounter % PIPE_SPAWN_LENGTH) == 0)
-            addPipeSet();
-
-        // Remove pipes that are out of window
+        // Remove pipes and weapons that are out of window
         checkPipeBounds();
+        checkWeaponBounds();
 
-        // Draw all pipes seen in queue
+        // Draw all pipes in queue
         for(PipeSet pipe : gamePipes){
             pipe.drawPipes();
-            addWeapon(pipe);
 
             // Draw flames
             if (pipe.getLevel() == 1) {
-                if ((frameCounter % 20) == 0)
-                    frameDuration = frameCounter + 3;
-                if (frameCounter < frameDuration) {
+                if ((frameCounter % FLAME_SPAWN_LENGTH) == 0)
+                    flameDuration = frameCounter + 3;
+                if (frameCounter < flameDuration) {
                     pipe.drawFlames();
                     pipe.setHasDrawnFlames(true);
                 } else
@@ -108,10 +65,42 @@ public class Pipes {
             }
         }
 
-        // Draw all weapons
+        // Draw all weapons in queue
         for (AbstractWeapon wp: weapons)
-            if (wp.getPosition() != null)
-                wp.drawWeapon();
+            wp.drawWeapon();
+
+        // Draw bird
+        BIRD.drawBird(frameCounter);
+    }
+
+    // Method to add objects to the queues
+    public void addObjects() {
+        // Add pipes to the queue every 100 frames
+        if (gamePipes.isEmpty())
+            addPipeSet();
+        else if ((frameCounter % PIPE_SPAWN_LENGTH) == 0)
+            addPipeSet();
+    }
+
+    // Method to add new Pipe set into Queue
+    public void addPipeSet() {
+        Random rand = new Random();
+        // Choose only plastic pipes
+        if (level == 0)
+            gamePipes.add(new PipeSet(level, LEVEL0_GAPS[rand.nextInt(LEVEL0_GAPS.length)], speed));
+        else {
+            int randPipe = rand.nextInt(2);
+            int randY = rand.nextInt(Y_UPPER_BOUND - Y_LOWER_BOUND) + Y_LOWER_BOUND;
+            PipeSet tempPipe = new PipeSet(randPipe, randY, speed);
+            // Add weapon and pipe set
+            gamePipes.add(tempPipe);
+            addWeapon(tempPipe);
+        }
+    }
+
+    // Method to add new weapon set into Queue
+    public void addWeapon(PipeSet pipe) {                    // ----------- Randomize with stone if rand == 1 bomb else stone
+        weapons.add(new Bomb(pipe));
     }
 
     // Method to shift every pipe to the left
@@ -120,8 +109,7 @@ public class Pipes {
             pipe.leftShift();
 
         for (AbstractWeapon wp: weapons)
-            if (wp.position != null)
-                wp.leftShift();
+            wp.leftShift();
     }
 
     // Method to check collision with the next pipe set that has not been passed
@@ -131,7 +119,7 @@ public class Pipes {
                 continue;
 
             // At the next pipe which has not been passed
-            if (pipe.checkCollision(BIRD)) {
+            if (pipe.checkBirdCollision(BIRD)) {    // || pipe.checkWeaponCollision(BIRD.)
                 BIRD.lifeLost();
                 if (BIRD.hasLives())
                     gamePipes.remove(pipe);
@@ -155,12 +143,19 @@ public class Pipes {
                 score += 1;
                 return true;
             } else
-                return false;
+                break;
+        }
+
+        for (AbstractWeapon weapon: weapons){
+            if (weapon.getHasPassed())
+                continue;
+            weapon.checkHasPassed(BIRD);
+            break;
         }
         return false;
     }
 
-    // Method to pop pipe that has left the window
+    // Method to pop the pipe that has left the window
     public void checkPipeBounds() {
         if (!gamePipes.isEmpty()) {
             PipeSet head = gamePipes.peek();
@@ -168,6 +163,16 @@ public class Pipes {
                 if (head.getTopRectangle().right() < 0)
                     // Check the right side of pipe is beyond the window
                     gamePipes.remove();
+        }
+    }
+
+    // Method to pop the weapon that has left the window
+    public void checkWeaponBounds() {
+        if (!weapons.isEmpty()) {
+            AbstractWeapon head = weapons.peek();
+            if (head.getHasPassed())
+                if (head.getBox().right() < 0)
+                    weapons.remove();
         }
     }
 

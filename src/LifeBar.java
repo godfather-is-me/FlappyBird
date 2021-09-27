@@ -28,7 +28,7 @@ public class LifeBar {
         for(int i = 0; i < lives_left; ++i)
             HEALTH.drawFromTopLeft(X_POS + (HEART_DISTANCE * i), Y_POS);
         // Draw lives lost
-        for(int i = lives_left; i<LIVES; ++i)
+        for(int i = lives_left; i < LIVES; ++i)
             NO_HEALTH.drawFromTopLeft(X_POS + (HEART_DISTANCE * i), Y_POS);
     }
 
