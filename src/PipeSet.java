@@ -82,7 +82,7 @@ public class PipeSet implements Spawnable{
     public boolean birdWeaponCollision(Bird bird) {
         if (bird.getHasPickedWeapon())
             return checkCollision(bird.getWeapon().getBox());
-        return checkCollision(bird.getBirdBoundingBox());
+        return checkCollision(bird.getBox());
     }
 
     // Method to check if pipeSet is out of the window

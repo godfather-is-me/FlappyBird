@@ -55,7 +55,7 @@ public abstract class AbstractWeapon implements Spawnable{
     // Method to check if weapon and bird intersect
     public boolean checkPickUp(Bird bird) {
         if (!isPicked)
-            return getBox().intersects(bird.getBirdBoundingBox());
+            return getBox().intersects(bird.getBox());
         return false;
     }
 

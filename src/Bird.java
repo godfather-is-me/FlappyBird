@@ -120,7 +120,7 @@ public class Bird {
     }
 
     // Method to get bounding box of the bird
-    public Rectangle getBirdBoundingBox() {
+    public Rectangle getBox() {
         return WING_UP.getBoundingBoxAt(position);
     }
 
