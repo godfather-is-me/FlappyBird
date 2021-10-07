@@ -6,17 +6,17 @@ import java.util.Random;
 public abstract class AbstractWeapon implements Spawnable{
     // Variables
     protected Point position;
-    protected int shootSpeed;
     protected int moveSpeed;
     protected boolean isShot;
     protected boolean isPicked;
     protected boolean hasPassed;
-    protected int currentDistance;
+    protected int frameCounter;
 
     // Constants
     protected final Image WEAPON;
     protected final int RANGE;
     protected final int WEAPON_TYPE;        // 0 for stone, 1 for bomb
+    protected final int SHOOT_SPEED = 5;
 
     // Constructor
     public AbstractWeapon (int range, Image weapon, int type, PipeSet pipeSet) {
@@ -25,8 +25,7 @@ public abstract class AbstractWeapon implements Spawnable{
         this.WEAPON_TYPE = type;
 
         moveSpeed = 3;
-        shootSpeed = 5;
-        currentDistance = 0;
+        frameCounter = 0;
 
         isShot = false;
         isPicked = false;
@@ -80,9 +79,9 @@ public abstract class AbstractWeapon implements Spawnable{
             x = birdPosition.x + (width * 0.6);
             y = birdPosition.y;
         } else if (isShot) {
-            x = position.x + shootSpeed;
+            x = position.x + SHOOT_SPEED;
             y = position.y;
-            currentDistance += shootSpeed;
+            frameCounter += 1;
         } else {
             x = position.x;
             y = position.y;
@@ -92,7 +91,7 @@ public abstract class AbstractWeapon implements Spawnable{
 
     // Method to check if weapon fired is out of range
     public boolean checkOutOfRange() {
-        return currentDistance > RANGE;
+        return frameCounter > RANGE;
     }
 
     // Method to check if weapon and pipes intersect when shot

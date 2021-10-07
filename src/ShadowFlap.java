@@ -11,8 +11,8 @@ import bagel.*;
 
 public class ShadowFlap extends AbstractGame {
     // Constants
-    public static final int LEVEL0_SCORE = 10;
-    public static final int LEVEL1_SCORE = 30;
+    public static final int LEVEL0_SCORE = 5;
+    public static final int LEVEL1_SCORE = 15;
 
     // Game objects
     private final Messages MESSAGES;
@@ -135,8 +135,7 @@ public class ShadowFlap extends AbstractGame {
             gameOver = true;
 
         // Has passed the pipes successfully
-        MANAGER.checkPass();
-        score = MANAGER.getScore();
+        score = MANAGER.checkPass();
         if (level == 0) {
             if (score >= LEVEL0_SCORE) {
                 level = 1;

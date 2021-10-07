@@ -144,8 +144,8 @@ public class GameManager {
         return false;
     }
 
-    // Method to check if bird has passed the next pipe set that has not been passed
-    public void checkPass() {
+    // Method to check if bird has passed the pipes and update score and objects in queue
+    public int checkPass() {
         for (PipeSet pipeSet: GAME_PIPES) {
             if (pipeSet.getHasPassed())
                 continue;
@@ -154,12 +154,14 @@ public class GameManager {
             break;
         }
 
-        for (AbstractWeapon weapon: WEAPONS){
+        for (AbstractWeapon weapon: WEAPONS) {
             if (weapon.getHasPassed())
                 continue;
             weapon.checkBirdPass(BIRD);
             break;
         }
+
+        return score;
     }
 
     // Method to pop the pipe that has left the window
@@ -200,11 +202,6 @@ public class GameManager {
         if (keyPress)
             if (BIRD.getHasPickedWeapon())
                 BIRD.setHasShotWeapon();
-    }
-
-    // Method to get score from after checking number of pipes passed
-    public int getScore() {
-        return score;
     }
 
     // Method to speed up the pipes in the game
