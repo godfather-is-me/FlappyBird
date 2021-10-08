@@ -14,11 +14,11 @@ public class GameManager {
     private final Bird BIRD;
 
     // Game variables
-    private final int LEVEL;
     private int score;
-    private int frameCounter;
     private int timeScale;
+    private int frameCounter;
     private int flameDuration;
+    private final int LEVEL;
     public static double speed;
 
     public GameManager(int level, Bird bird) {

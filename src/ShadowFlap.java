@@ -38,8 +38,8 @@ public class ShadowFlap extends AbstractGame {
         level = 0;
         frameCounter = 0;
         gameOn = false;
-        gameOver = false;
         gameWon = false;
+        gameOver = false;
         loadedObjects = true;
 
         // Load objects

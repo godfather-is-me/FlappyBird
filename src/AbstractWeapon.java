@@ -5,24 +5,27 @@ import java.util.Random;
 
 public abstract class AbstractWeapon implements Spawnable{
     // Variables
-    protected Point position;
-    protected int moveSpeed;
-    protected boolean isShot;
-    protected boolean isPicked;
-    protected boolean hasPassed;
-    protected int frameCounter;
+    private Point position;
+    private int moveSpeed;
+    private int frameCounter;
+    private boolean isShot;
+    private boolean isPicked;
+    private boolean hasPassed;
 
     // Constants
-    protected final Image WEAPON;
-    protected final int RANGE;
-    protected final int WEAPON_TYPE;        // 0 for stone, 1 for bomb
-    protected final int SHOOT_SPEED = 5;
+    private final int RANGE;
+    private final int SHOOT_SPEED = 5;
+    private final Image WEAPON;
+
+    // Enum
+    protected enum WEAPON_TYPE {BOMB, ROCK}
+    private final WEAPON_TYPE type;
 
     // Constructor
-    public AbstractWeapon (int range, Image weapon, int type, PipeSet pipeSet) {
+    public AbstractWeapon (int range, Image weapon, WEAPON_TYPE type, PipeSet pipeSet) {
         this.WEAPON = weapon;
         this.RANGE = range;
-        this.WEAPON_TYPE = type;
+        this.type = type;
 
         moveSpeed = 3;
         frameCounter = 0;
@@ -96,7 +99,7 @@ public abstract class AbstractWeapon implements Spawnable{
 
     // Method to check if weapon and pipes intersect when shot
     public boolean checkDestruction(PipeSet pipeSet) {
-        if ((pipeSet.getLevel() == 0) || (pipeSet.getLevel() == 1 && WEAPON_TYPE == 1)){
+        if ((pipeSet.getLevel() == 0) || (pipeSet.getLevel() == 1 && type == WEAPON_TYPE.BOMB)){
             if (pipeSet.getTopRectangle().intersects(getBox()))
                 return true;
             return pipeSet.getBotRectangle().intersects(getBox());

@@ -23,14 +23,22 @@ public class PipeSet implements Spawnable{
     // Constants
     private final int LEVEL;
     private final int SPACING = 168;
-    private final String[] PIPE_TYPES = {"/plastic", "/steel"};
+    // private final String[] PIPE_TYPES = {"/plastic", "/steel"};
 
     // Pipes constructor
-    public PipeSet(Integer level, int centre, double moveSpeed) {
-        String str_lvl = level.toString();
+    public PipeSet(int level, int centre, double moveSpeed) {
+        // String str_lvl = level.toString();
 
-        TOP = new Image("res/level-" + str_lvl + PIPE_TYPES[level] + "Pipe.png");
-        BOTTOM = new Image("res/level-" + str_lvl + PIPE_TYPES[level] + "Pipe.png");
+        if (level == 0) {
+            TOP = new Image("res/level/plasticPipe.png");
+            BOTTOM = new Image("res/level/plasticPipe.png");
+        } else {
+            TOP = new Image("res/level-1/steelPipe.png");
+            BOTTOM = new Image("res/level-1/steelPipe.png");
+        }
+
+        // TOP = new Image("res/level-" + str_lvl + PIPE_TYPES[level] + "Pipe.png");
+        // BOTTOM = new Image("res/level-" + str_lvl + PIPE_TYPES[level] + "Pipe.png");
 
         TOP_FLAME = new Image("res/level-1/flame.png");
         BOT_FLAME = new Image("res/level-1/flame.png");
