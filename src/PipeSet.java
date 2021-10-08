@@ -37,9 +37,6 @@ public class PipeSet implements Spawnable{
             BOTTOM = new Image("res/level-1/steelPipe.png");
         }
 
-        // TOP = new Image("res/level-" + str_lvl + PIPE_TYPES[level] + "Pipe.png");
-        // BOTTOM = new Image("res/level-" + str_lvl + PIPE_TYPES[level] + "Pipe.png");
-
         TOP_FLAME = new Image("res/level-1/flame.png");
         BOT_FLAME = new Image("res/level-1/flame.png");
 
@@ -149,6 +146,11 @@ public class PipeSet implements Spawnable{
         return TOP.getWidth();
     }
 
+    // Method to get speed for weapon speed and placement
+    public double getMoveSpeed(){
+        return moveSpeed;
+    }
+
     // Method to modify speed based on the increase/decrease
     public void setSpeed(double moveSpeed) {
         this.moveSpeed = moveSpeed;
@@ -157,5 +159,10 @@ public class PipeSet implements Spawnable{
     // Method to update hasDrawnFlames if flames are seen
     public void setHasDrawnFlames(boolean hasDrawnFlames) {
         this.hasDrawnFlames = hasDrawnFlames;
+    }
+
+    // Method to get current position of pipe
+    public Point getPosition() {
+        return topPosition;
     }
 }

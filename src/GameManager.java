@@ -1,12 +1,22 @@
+import bagel.Window;
+
 import java.util.*;
 
 public class GameManager {
     // Constants
-    public static final int PIPE_SPAWN_LENGTH = 150;
+    public static final int MAX_TIMESCALE = 5;
+    public static final int MIN_TIMESCALE = 1;
+
     public static final int FLAME_SPAWN_LENGTH = 20;
     public static final int Y_LOWER_BOUND = 100;
     public static final int Y_UPPER_BOUND = 500;
+
+    public static final double[] SPEED = new double[MAX_TIMESCALE];
+    public static final int[] PIPE_SPAWN_TIME = new int[MAX_TIMESCALE];
     private final int[] LEVEL0_GAPS = {100, 300, 500};
+
+    public static int timeScale;
+
 
     // Store all pipes from current window in a Queue
     private final Queue<PipeSet> GAME_PIPES;
@@ -15,11 +25,16 @@ public class GameManager {
 
     // Game variables
     private int score;
-    private int timeScale;
     private int frameCounter;
     private int flameDuration;
     private final int LEVEL;
-    public static double speed;
+    private PipeSet lastPipe;
+
+    // Constants
+    private final int INITIAL_SPAWN_RATE = 100;
+    private final double INITIAL_SPEED = 3.0;
+    private final double SPEED_FACTOR = 1.5;
+
 
     public GameManager(int level, Bird bird) {
         // Load objects
@@ -29,10 +44,11 @@ public class GameManager {
 
         // Game variables
         score = 0;
-        speed = 3.0;
-        timeScale = 1;
+        timeScale = 0;
         flameDuration = 0;
+        lastPipe = null;
         this.LEVEL = level;
+        calculateTimeScales();
     }
 
     // Method to draw every pipe and weapon from queue
@@ -74,25 +90,38 @@ public class GameManager {
     public void addObjects() {
         // Add pipes to the queue every 100 frames
         if (GAME_PIPES.isEmpty())
-            addPipeSet();
-        else if ((frameCounter % PIPE_SPAWN_LENGTH) == 0)
-            addPipeSet();
+            lastPipe = addPipeSet();
+        else if ((frameCounter % PIPE_SPAWN_TIME[timeScale]) == 0)
+            if (checkDistance())
+                lastPipe = addPipeSet();
+    }
+
+    // Method to ensure correct spacing of pipes with speed change
+    public boolean checkDistance(){
+        double distanceFromRight = Window.getWidth() - lastPipe.getPosition().x;
+        double distanceBetweenPipes = SPEED[timeScale] * PIPE_SPAWN_TIME[timeScale];
+        return (distanceFromRight >= (distanceBetweenPipes * 0.9));
     }
 
     // Method to add new Pipe set into Queue
-    public void addPipeSet() {
+    public PipeSet addPipeSet() {
         Random rand = new Random();
+        PipeSet tempPipe;
         // Choose only plastic pipes
-        if (LEVEL == 0)
-            GAME_PIPES.add(new PipeSet(LEVEL, LEVEL0_GAPS[rand.nextInt(LEVEL0_GAPS.length)], speed));
+        if (LEVEL == 0) {
+            tempPipe = new PipeSet(LEVEL, LEVEL0_GAPS[rand.nextInt(LEVEL0_GAPS.length)], SPEED[timeScale]);
+            GAME_PIPES.add(tempPipe);
+        }
         else {
             int randPipe = rand.nextInt(2);
             int randY = rand.nextInt(Y_UPPER_BOUND - Y_LOWER_BOUND) + Y_LOWER_BOUND;
-            PipeSet tempPipe = new PipeSet(randPipe, randY, speed);
+            tempPipe = new PipeSet(randPipe, randY, SPEED[timeScale]);
             // Add weapon and pipe set
             GAME_PIPES.add(tempPipe);
             addWeapon(tempPipe);
         }
+
+        return tempPipe;
     }
 
     // Method to add new weapon set into Queue
@@ -204,25 +233,38 @@ public class GameManager {
                 BIRD.setHasShotWeapon();
     }
 
+    // Method to initialize speed/spawn rate for all timescales
+    public void calculateTimeScales() {
+        SPEED[0] = INITIAL_SPEED;
+        PIPE_SPAWN_TIME[0] = INITIAL_SPAWN_RATE;
+
+        for (int i = 1; i < MAX_TIMESCALE; ++i) {
+            SPEED[i] = SPEED[i-1] * SPEED_FACTOR;
+            PIPE_SPAWN_TIME[i] = (int) (PIPE_SPAWN_TIME[i-1] / SPEED_FACTOR);
+        }
+    }
+
     // Method to speed up the pipes in the game
     public void speedUp(boolean isPressed) {
         if (isPressed)
-            if (timeScale < 5) {
+            if (timeScale < (MAX_TIMESCALE - 1)) {
                 timeScale += 1;
-                speed += 1.5;
                 for (PipeSet pipeSet: GAME_PIPES)
-                    pipeSet.setSpeed(speed);
+                    pipeSet.setSpeed(SPEED[timeScale]);
+                for (AbstractWeapon weapon: WEAPONS)
+                    weapon.setMoveSpeed(SPEED[timeScale]);
             }
     }
 
     // Method to slow down the pipes in the game
     public void slowDown(boolean isPressed) {
         if (isPressed)
-            if (timeScale > 1) {
+            if (timeScale > MIN_TIMESCALE) {
                 timeScale -= 1;
-                speed -= 1.5;
                 for (PipeSet pipeSet: GAME_PIPES)
-                    pipeSet.setSpeed(speed);
+                    pipeSet.setSpeed(SPEED[timeScale]);
+                for (AbstractWeapon weapon: WEAPONS)
+                    weapon.setMoveSpeed(SPEED[timeScale]);
             }
     }
 

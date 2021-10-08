@@ -6,8 +6,8 @@ import java.util.Random;
 public abstract class AbstractWeapon implements Spawnable{
     // Variables
     private Point position;
-    private int moveSpeed;
     private int frameCounter;
+    private double moveSpeed;
     private boolean isShot;
     private boolean isPicked;
     private boolean hasPassed;
@@ -27,7 +27,7 @@ public abstract class AbstractWeapon implements Spawnable{
         this.RANGE = range;
         this.type = type;
 
-        moveSpeed = 3;
+        moveSpeed = pipeSet.getMoveSpeed();
         frameCounter = 0;
 
         isShot = false;
@@ -41,13 +41,13 @@ public abstract class AbstractWeapon implements Spawnable{
         Random rand = new Random();
 
         // Constants from game manager
-        int pipeSpawnLength = GameManager.PIPE_SPAWN_LENGTH;
+        int pipeSpawnTime = GameManager.PIPE_SPAWN_TIME[GameManager.timeScale];
         int upperBound = GameManager.Y_UPPER_BOUND;
         int lowerBound = GameManager.Y_LOWER_BOUND;
-        double speed = GameManager.speed;
+        double speed = GameManager.SPEED[GameManager.timeScale];
 
         // Distance to next pipe
-        double distance = (pipeSpawnLength * speed) - (pipeSet.getWidth() + getWidth());
+        double distance = (pipeSpawnTime * speed) - (pipeSet.getWidth() + getWidth());
         int x = rand.nextInt((int) distance) + Window.getWidth() + (int) ((pipeSet.getWidth() + getWidth()) / 2);
         int y = rand.nextInt(upperBound - lowerBound) + lowerBound;
 
@@ -146,5 +146,10 @@ public abstract class AbstractWeapon implements Spawnable{
     // Method to set isShot
     public void setIsShot(boolean isShot) {
         this.isShot = isShot;
+    }
+
+    // Method to set move speed based on increase/decrease keys
+    public void setMoveSpeed(double moveSpeed){
+        this.moveSpeed = moveSpeed;
     }
 }
