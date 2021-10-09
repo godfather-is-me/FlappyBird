@@ -14,8 +14,9 @@ public abstract class AbstractWeapon implements Spawnable{
 
     // Constants
     private final int RANGE;
-    private final int SHOOT_SPEED = 5;
     private final Image WEAPON;
+    private final int SHOOT_SPEED = 5;
+    private final double ADJUSTMENT = 0.6;
 
     // Enum
     protected enum WEAPON_TYPE {BOMB, ROCK}
@@ -75,23 +76,6 @@ public abstract class AbstractWeapon implements Spawnable{
         return false;
     }
 
-    // Method to update position of weapon with bird
-    public void updatePosition(Point birdPosition, double width) {
-        double x, y;
-        if (isPicked) {
-            x = birdPosition.x + (width * 0.6);
-            y = birdPosition.y;
-        } else if (isShot) {
-            x = position.x + SHOOT_SPEED;
-            y = position.y;
-            frameCounter += 1;
-        } else {
-            x = position.x;
-            y = position.y;
-        }
-        position = new Point(x, y);
-    }
-
     // Method to check if weapon fired is out of range
     public boolean checkOutOfRange() {
         return frameCounter > RANGE;
@@ -105,6 +89,23 @@ public abstract class AbstractWeapon implements Spawnable{
             return pipeSet.getBotRectangle().intersects(getBox());
         }
         return false;
+    }
+
+    // Method to update position of weapon with bird
+    public void updatePosition(Point birdPosition, double width) {
+        double x, y;
+        if (isPicked) {
+            x = birdPosition.x + (width * ADJUSTMENT);
+            y = birdPosition.y;
+        } else if (isShot) {
+            x = position.x + SHOOT_SPEED;
+            y = position.y;
+            frameCounter += 1;
+        } else {
+            x = position.x;
+            y = position.y;
+        }
+        position = new Point(x, y);
     }
 
     // Method to draw weapon for the given position
@@ -138,14 +139,14 @@ public abstract class AbstractWeapon implements Spawnable{
         return hasPassed;
     }
 
-    // Method to set isPicked
-    public void setIsPicked(boolean isPicked) {
-        this.isPicked = isPicked;
-    }
-
     // Method to set isShot
     public void setIsShot(boolean isShot) {
         this.isShot = isShot;
+    }
+
+    // Method to set isPicked
+    public void setIsPicked(boolean isPicked) {
+        this.isPicked = isPicked;
     }
 
     // Method to set move speed based on increase/decrease keys

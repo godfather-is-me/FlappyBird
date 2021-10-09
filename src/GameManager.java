@@ -1,20 +1,19 @@
-import bagel.Window;
-
 import java.util.*;
+import bagel.Window;
 
 public class GameManager {
     // Constants
     public static final int MAX_TIMESCALE = 5;
     public static final int MIN_TIMESCALE = 1;
-
     public static final int FLAME_SPAWN_LENGTH = 20;
     public static final int Y_LOWER_BOUND = 100;
     public static final int Y_UPPER_BOUND = 500;
 
-    public static final double[] SPEED = new double[MAX_TIMESCALE];
     public static final int[] PIPE_SPAWN_TIME = new int[MAX_TIMESCALE];
+    public static final double[] SPEED = new double[MAX_TIMESCALE];
     private final int[] LEVEL0_GAPS = {100, 300, 500};
 
+    // Non-final static
     public static int timeScale;
 
 
@@ -34,8 +33,9 @@ public class GameManager {
     private final int INITIAL_SPAWN_RATE = 100;
     private final double INITIAL_SPEED = 3.0;
     private final double SPEED_FACTOR = 1.5;
+    private final double ADJUSTMENT = 0.9;
 
-
+    // Constructor
     public GameManager(int level, Bird bird) {
         // Load objects
         this.BIRD = bird;
@@ -63,7 +63,7 @@ public class GameManager {
         checkWeaponBounds();
 
         // Draw all pipes in queue
-        for(PipeSet pipeSet : GAME_PIPES){
+        for(PipeSet pipeSet : GAME_PIPES) {
             pipeSet.drawPipes();
 
             // Draw flames
@@ -94,13 +94,6 @@ public class GameManager {
         else if ((frameCounter % PIPE_SPAWN_TIME[timeScale]) == 0)
             if (checkDistance())
                 lastPipe = addPipeSet();
-    }
-
-    // Method to ensure correct spacing of pipes with speed change
-    public boolean checkDistance(){
-        double distanceFromRight = Window.getWidth() - lastPipe.getPosition().x;
-        double distanceBetweenPipes = SPEED[timeScale] * PIPE_SPAWN_TIME[timeScale];
-        return (distanceFromRight >= (distanceBetweenPipes * 0.9));
     }
 
     // Method to add new Pipe set into Queue
@@ -154,20 +147,19 @@ public class GameManager {
                 if (BIRD.hasLives())
                     GAME_PIPES.remove(pipeSet);
                 else
-                 // Bird has collided and no lives left
-                 return  true;
+                    // Bird has collided and no lives left
+                    return  true;
             }
 
             // Check if the weapon has collided with pipe when shot
-            if (BIRD.getHasShotWeapon()) {
+            if (BIRD.getHasShotWeapon())
                 if (BIRD.getWeapon().checkDestruction(pipeSet)) {
                     score += 1;
                     GAME_PIPES.remove(pipeSet);
                     BIRD.removeWeapon();
                 }
-            }
 
-            // The next pipe to be checked has not collided
+            // The next pipe to be checked has not reached bird
             break;
         }
         return false;
@@ -190,28 +182,34 @@ public class GameManager {
             break;
         }
 
+        // Returns overall score, including pipe destruction
         return score;
     }
 
     // Method to pop the pipe that has left the window
     public void checkPipeBounds() {
-        if (!GAME_PIPES.isEmpty()) {
+        if (!GAME_PIPES.isEmpty())
             if (GAME_PIPES.peek().checkWindowBounds())
                 GAME_PIPES.remove();
-        }
     }
 
     // Method to pop the weapon that has left the window
     public void checkWeaponBounds() {
-        if (!WEAPONS.isEmpty()) {
+        if (!WEAPONS.isEmpty())
             if (WEAPONS.peek().checkWindowBounds())
                 WEAPONS.remove();
-        }
+    }
+
+    // Method to ensure correct spacing of pipes with speed change
+    public boolean checkDistance() {
+        double distanceFromRight = Window.getWidth() - lastPipe.getPosition().x;
+        double distanceBetweenPipes = SPEED[timeScale] * PIPE_SPAWN_TIME[timeScale];
+        return (distanceFromRight >= (distanceBetweenPipes * ADJUSTMENT));
     }
 
     // Method to see if the weapon has been picked up or not
     public void pickWeapon() {
-        if (!BIRD.getHasPickedWeapon()) {
+        if (!BIRD.getHasPickedWeapon())
             for (AbstractWeapon weapon : WEAPONS) {
                 if (weapon.getHasPassed())
                     continue;
@@ -223,7 +221,6 @@ public class GameManager {
                     break;
                 }
             }
-        }
     }
 
     // Method to shoot weapon held by bird
@@ -259,7 +256,8 @@ public class GameManager {
     // Method to slow down the pipes in the game
     public void slowDown(boolean isPressed) {
         if (isPressed)
-            if (timeScale > MIN_TIMESCALE) {
+            // Timescale set to be from 0-4 in code
+            if (timeScale >= MIN_TIMESCALE) {
                 timeScale -= 1;
                 for (PipeSet pipeSet: GAME_PIPES)
                     pipeSet.setSpeed(SPEED[timeScale]);
