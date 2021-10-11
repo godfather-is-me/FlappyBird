@@ -63,8 +63,10 @@ public class Bird {
 
         // Draw picked up weapon at beak
         if (hasPickedWeapon) {
-            weapon.updatePosition(position, WIDTH);
-            weapon.drawObject();
+            if (!(weapon == null)) {
+                weapon.updatePosition(position, WIDTH);
+                weapon.drawObject();
+            }
         } else if (hasShotWeapon) {
             if (!weapon.checkOutOfRange()) {
                 weapon.updatePosition(position, WIDTH);
