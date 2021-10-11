@@ -1,6 +1,11 @@
 import java.util.*;
 import bagel.Window;
 
+/**
+ * Manages the game by controlling pipe and weapon arrays, changing levels,
+ * and performing constant checks
+ */
+
 public class GameManager {
     // Constants
     public static final int MAX_TIMESCALE = 5;
@@ -11,11 +16,9 @@ public class GameManager {
 
     public static final int[] PIPE_SPAWN_TIME = new int[MAX_TIMESCALE];
     public static final double[] SPEED = new double[MAX_TIMESCALE];
-    private final int[] LEVEL0_GAPS = {100, 300, 500};
 
     // Non-final static
     public static int timeScale;
-
 
     // Store all pipes from current window in a Queue
     private final Queue<PipeSet> GAME_PIPES;
@@ -34,8 +37,14 @@ public class GameManager {
     private final double INITIAL_SPEED = 3.0;
     private final double SPEED_FACTOR = 1.5;
     private final double ADJUSTMENT = 0.9;
+    private final int[] LEVEL0_GAPS = {100, 300, 500};
 
-    // Constructor
+    /**
+     * Create a manager with the specified bird and level
+     *
+     * @param level Current level being played
+     * @param bird Bird in play
+     */
     public GameManager(int level, Bird bird) {
         // Load objects
         this.BIRD = bird;
@@ -51,7 +60,9 @@ public class GameManager {
         calculateTimeScales();
     }
 
-    // Method to draw every pipe and weapon from queue
+    /**
+     * Draw all objects on screen
+     */
     public void drawObjects() {
         frameCounter += 1;
 
@@ -86,7 +97,9 @@ public class GameManager {
         BIRD.drawBird(frameCounter);
     }
 
-    // Method to add objects to the queues
+    /**
+     * Spawn new objects and add them to the queue
+     */
     public void addObjects() {
         // Add pipes to the queue every 100 frames
         if (GAME_PIPES.isEmpty())
@@ -96,7 +109,11 @@ public class GameManager {
                 lastPipe = addPipeSet();
     }
 
-    // Method to add new Pipe set into Queue
+    /**
+     * Add new pipe sets to the queue
+     *
+     * @return the latest pipe added to the queue
+     */
     public PipeSet addPipeSet() {
         Random rand = new Random();
         PipeSet tempPipe;
@@ -117,7 +134,11 @@ public class GameManager {
         return tempPipe;
     }
 
-    // Method to add new weapon set into Queue
+    /**
+     * Add new weapon into the queue
+     *
+     * @param pipeSet the pipe set after which the weapon is initialized
+     */
     public void addWeapon(PipeSet pipeSet) {
         Random rand = new Random();
         if (rand.nextInt(2) == 0)
@@ -126,7 +147,9 @@ public class GameManager {
             WEAPONS.add(new Bomb(pipeSet));
     }
 
-    // Method to shift every pipe to the left
+    /**
+     * Move all objects from right to left on screen
+     */
     public void leftShift() {
         for (PipeSet pipeSet: GAME_PIPES)
             pipeSet.leftShift();
@@ -135,7 +158,11 @@ public class GameManager {
             weapon.leftShift();
     }
 
-    // Method to check collision with the next pipe set that has not been passed
+    /**
+     * Check collision between bird and the pipe set that has not been passed
+     *
+     * @return Returns true if collision occurs and no lives left
+     */
     public boolean checkCollisionAndLives() {
         for (PipeSet pipeSet: GAME_PIPES) {
             if (pipeSet.getHasPassed())
@@ -165,7 +192,11 @@ public class GameManager {
         return false;
     }
 
-    // Method to check if bird has passed the pipes and update score and objects in queue
+    /**
+     * Check if bird has passed the pipe and update score
+     *
+     * @return Score of the bird
+     */
     public int checkPass() {
         for (PipeSet pipeSet: GAME_PIPES) {
             if (pipeSet.getHasPassed())
@@ -186,28 +217,38 @@ public class GameManager {
         return score;
     }
 
-    // Method to pop the pipe that has left the window
+    /**
+     * Pop the pipe that left the window (out-of-bounds)
+     */
     public void checkPipeBounds() {
         if (!GAME_PIPES.isEmpty())
             if (GAME_PIPES.peek().checkWindowBounds())
                 GAME_PIPES.remove();
     }
 
-    // Method to pop the weapon that has left the window
+    /**
+     * Pop the weapon that left the window (out-of-bounds)
+     */
     public void checkWeaponBounds() {
         if (!WEAPONS.isEmpty())
             if (WEAPONS.peek().checkWindowBounds())
                 WEAPONS.remove();
     }
 
-    // Method to ensure correct spacing of pipes with speed change
+    /**
+     * A correction method to maintain distance between pipes with speed change
+     *
+     * @return Returns true if there is enough distance between pipes
+     */
     public boolean checkDistance() {
         double distanceFromRight = Window.getWidth() - lastPipe.getPosition().x;
         double distanceBetweenPipes = SPEED[timeScale] * PIPE_SPAWN_TIME[timeScale];
         return (distanceFromRight >= (distanceBetweenPipes * ADJUSTMENT));
     }
 
-    // Method to see if the weapon has been picked up or not
+    /**
+     * Check if the weapon has been picked, changes properties of bird and weapon
+     */
     public void pickWeapon() {
         if (!BIRD.getHasPickedWeapon())
             for (AbstractWeapon weapon : WEAPONS) {
@@ -223,14 +264,20 @@ public class GameManager {
             }
     }
 
-    // Method to shoot weapon held by bird
+    /**
+     * Shoot weapon if key is pressed
+     *
+     * @param keyPress Key input by user
+     */
     public void shootWeapon(boolean keyPress) {
         if (keyPress)
             if (BIRD.getHasPickedWeapon())
                 BIRD.setHasShotWeapon();
     }
 
-    // Method to initialize speed/spawn rate for all timescales
+    /**
+     * Initialize speed/spawn rate for all timescales
+     */
     public void calculateTimeScales() {
         SPEED[0] = INITIAL_SPEED;
         PIPE_SPAWN_TIME[0] = INITIAL_SPAWN_RATE;
@@ -241,29 +288,39 @@ public class GameManager {
         }
     }
 
-    // Method to speed up the pipes in the game
+    /**
+     * Increase the speed if key is pressed
+     *
+     * @param isPressed Key input by user
+     */
     public void speedUp(boolean isPressed) {
         if (isPressed)
             if (timeScale < (MAX_TIMESCALE - 1)) {
                 timeScale += 1;
-                for (PipeSet pipeSet: GAME_PIPES)
-                    pipeSet.setSpeed(SPEED[timeScale]);
-                for (AbstractWeapon weapon: WEAPONS)
-                    weapon.setMoveSpeed(SPEED[timeScale]);
+                setSpeed();
             }
     }
 
-    // Method to slow down the pipes in the game
+    /**
+     * Decrease the speed if key is pressed
+     *
+     * @param isPressed Key input by user
+     */
     public void slowDown(boolean isPressed) {
         if (isPressed)
             // Timescale set to be from 0-4 in code
-            if (timeScale >= MIN_TIMESCALE) {
+            if (timeScale > (MIN_TIMESCALE - 1)) {
                 timeScale -= 1;
-                for (PipeSet pipeSet: GAME_PIPES)
-                    pipeSet.setSpeed(SPEED[timeScale]);
-                for (AbstractWeapon weapon: WEAPONS)
-                    weapon.setMoveSpeed(SPEED[timeScale]);
+                setSpeed();
             }
+    }
+
+    // Method to set speed for any configuration
+    private void setSpeed() {
+        for (PipeSet pipeSet: GAME_PIPES)
+            pipeSet.setMoveSpeed(SPEED[timeScale]);
+        for (AbstractWeapon weapon: WEAPONS)
+            weapon.setMoveSpeed(SPEED[timeScale]);
     }
 
 }

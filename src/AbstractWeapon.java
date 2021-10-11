@@ -1,7 +1,10 @@
 import bagel.*;
 import bagel.util.*;
-
 import java.util.Random;
+
+/**
+ * Contains all standard methods used by the weapon.
+ */
 
 public abstract class AbstractWeapon implements Spawnable{
     // Variables
@@ -22,7 +25,15 @@ public abstract class AbstractWeapon implements Spawnable{
     protected enum WEAPON_TYPE {BOMB, ROCK}
     private final WEAPON_TYPE type;
 
-    // Constructor
+    /**
+     * The AbstractWeapon constructor used as a super constructor for
+     * bombs and rocks to create a weapon object.
+     *
+     * @param range The range of the weapon when shot
+     * @param weapon An Image object containing the weapon in context
+     * @param type The specific type of weapon required, available from WEAPON_TYPE enum
+     * @param pipeSet The pipe set after which this particular weapon has been spawned
+     */
     public AbstractWeapon (int range, Image weapon, WEAPON_TYPE type, PipeSet pipeSet) {
         this.WEAPON = weapon;
         this.RANGE = range;
@@ -37,7 +48,13 @@ public abstract class AbstractWeapon implements Spawnable{
         position = setInitialPosition(pipeSet);
     }
 
-    // Method to set initial position of the weapon at random coordinates
+    /**
+     * Sets the initial position of the weapon at a random location between
+     * pipe sets
+     *
+     * @param pipeSet The pipe set after which the weapon is initialised
+     * @return The initialized random point for the weapon
+     */
     public Point setInitialPosition(PipeSet pipeSet) {
         Random rand = new Random();
 
@@ -55,33 +72,56 @@ public abstract class AbstractWeapon implements Spawnable{
         return new Point(x, y);
     }
 
-    // Method to check if weapon and bird intersect
+    /**
+     * Checks whether the weapon has been picked up by bird
+     *
+     * @param bird The bird in play
+     * @return Returns true if the bird has picked up the weapon
+     */
     public boolean checkPickUp(Bird bird) {
         if (!isPicked)
             return getBox().intersects(bird.getBox());
         return false;
     }
 
-    // Method to check if weapon has passed the bird's y-coordinate
+    /**
+     * Check if the weapon has passed the bird on screen
+     *
+     * @param bird The bird in play
+     * @return Returns true if weapon has passed the bird
+     */
     public boolean checkBirdPass(Bird bird) {
         if (bird.getPosition().x > WEAPON.getBoundingBoxAt(position).right())
             hasPassed = true;
         return hasPassed;
     }
 
-    // Method to check if weapon is out of bounds
+    /**
+     * Check if weapon has left the window
+     *
+     * @return Returns true if weapon is outside window
+     */
     public boolean checkWindowBounds() {
         if (hasPassed)
             return getBox().right() < 0;
         return false;
     }
 
-    // Method to check if weapon fired is out of range
+    /**
+     * Check if the fired weapon is out of range (in frames)
+     *
+     * @return Returns true if out-of-range
+     */
     public boolean checkOutOfRange() {
         return frameCounter > RANGE;
     }
 
-    // Method to check if weapon and pipes intersect when shot
+    /**
+     * Check if weapon has destroyed pipe when shot
+     *
+     * @param pipeSet The pipe set the weapon has shot at
+     * @return Returns true if pipe and weapon intersect
+     */
     public boolean checkDestruction(PipeSet pipeSet) {
         if ((pipeSet.getLevel() == 0) || (pipeSet.getLevel() == 1 && type == WEAPON_TYPE.BOMB)){
             if (pipeSet.getTopRectangle().intersects(getBox()))
@@ -91,7 +131,12 @@ public abstract class AbstractWeapon implements Spawnable{
         return false;
     }
 
-    // Method to update position of weapon with bird
+    /**
+     * Updates the position of the weapon when picked up bird or shot
+     *
+     * @param birdPosition The current position of the bird
+     * @param width The width of the bird
+     */
     public void updatePosition(Point birdPosition, double width) {
         double x, y;
         if (isPicked) {
@@ -108,48 +153,79 @@ public abstract class AbstractWeapon implements Spawnable{
         position = new Point(x, y);
     }
 
-    // Method to draw weapon for the given position
+    /**
+     * Draw weapon at its current position
+     */
     public void drawWeapon() {
         WEAPON.draw(position.x, position.y);
     }
 
-    // Method to shoot weapon (change position every frame by speed)
+    /**
+     * Update properties of weapon from picked to shot
+     */
     public void shootWeapon() {
         isPicked = false;
         isShot = true;
     }
 
-    // Method to move shift weapon to the left with every frame
+    /**
+     * Move the weapon from right to left if it has not been picked
+     */
     public void leftShift() {
         position = new Point(position.x - moveSpeed, position.y);
     }
 
+    /**
+     * Getter for bounding box of the weapon
+     *
+     * @return Return bounding box
+     */
     // Method to get bounding box of weapon
     public Rectangle getBox() {
         return WEAPON.getBoundingBoxAt(position);
     }
 
-    // Method to get width of the weapon
+    /**
+     * Return the width of the weapon
+     *
+     * @return Returns the width
+     */
     public double getWidth() {
         return WEAPON.getWidth();
     }
 
-    // Method to get hasPassed
+    /**
+     * Return the weapon property hasPassed
+     *
+     * @return Returns true if weapon has passed
+     */
     public boolean getHasPassed() {
         return hasPassed;
     }
 
-    // Method to set isShot
+    /**
+     * Setter for weapon property isShot
+     *
+     * @param isShot Set true/false is weapon is shot or not
+     */
     public void setIsShot(boolean isShot) {
         this.isShot = isShot;
     }
 
-    // Method to set isPicked
+    /**
+     * Setter for weapon property isPicked
+     *
+     * @param isPicked Set true/false is weapon is picked or not
+     */
     public void setIsPicked(boolean isPicked) {
         this.isPicked = isPicked;
     }
 
-    // Method to set move speed based on increase/decrease keys
+    /**
+     * Setter for current move speed of weapon
+     *
+     * @param moveSpeed Current speed as set by increase/decrease keys
+     */
     public void setMoveSpeed(double moveSpeed){
         this.moveSpeed = moveSpeed;
     }
