@@ -6,7 +6,7 @@ public class Bird {
     private final Image WING_UP;
     private final Image WING_DOWN;
     private final LifeBar LIFEBAR;
-    private AbstractWeapon weapon;
+    private Weapon weapon;
 
     private Point position;
     private double velocity;
@@ -52,11 +52,11 @@ public class Bird {
         // Draw picked up weapon at beak
         if (hasPickedWeapon) {
             weapon.updatePosition(position, WIDTH);
-            weapon.drawWeapon();
+            weapon.drawObject();
         } else if (hasShotWeapon) {
             if (!weapon.checkOutOfRange()) {
                 weapon.updatePosition(position, WIDTH);
-                weapon.drawWeapon();
+                weapon.drawObject();
                 // Check for collision with pipe
             } else
                 removeWeapon();
@@ -105,7 +105,7 @@ public class Bird {
     }
 
     // Method to get the weapon of the bird
-    public AbstractWeapon getWeapon() {
+    public Weapon getWeapon() {
         return weapon;
     }
 
@@ -132,7 +132,7 @@ public class Bird {
     }
 
     // Method to set the weapon of the bird
-    public void setWeapon(AbstractWeapon weapon) {
+    public void setWeapon(Weapon weapon) {
         this.weapon = weapon;
         hasPickedWeapon = true;
     }

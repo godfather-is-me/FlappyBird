@@ -2,234 +2,152 @@ import bagel.*;
 import bagel.util.*;
 
 import java.lang.Math;
+import java.util.ArrayList;
 
-/**
- * Creates a set of pipes whenever called with all pipe related functionality
- */
-public class PipeSet implements Spawnable{
-    private final Image TOP;
-    private final Image BOTTOM;
-    private final Image TOP_FLAME;
-    private final Image BOT_FLAME;
-    private final DrawOptions OPTION;
-
-    private Point topPosition;
-    private Point botPosition;
-    private Point topFlamePosition;
-    private Point botFlamePosition;
+public class PipeSet {
+    // Constants
+    private final ArrayList<RightToLeft> PIPES;
+    private final ArrayList<RightToLeft> FLAMES;
+    private final int FLAME_SPAWN_INTERVAL = 20;
+    private final int FLAME_SPAWN_LENGTH = 3;
+    private final int SPACING = 168;
+    private final int LEVEL;
 
     // Game variables
-    private double moveSpeed;
     private boolean hasPassed;
     private boolean hasDrawnFlames;
+    private int frameCounter;
+    private int flameCounter;
 
-    // Constants
-    private final int LEVEL;
-    private final int SPACING = 168;
+    public PipeSet(int level, int centre) {
+        // Add pipes and flames to the list
+        PIPES = new ArrayList<>();
+        FLAMES = new ArrayList<>();
 
-    /**
-     * Creates a new set of pipes spawned at the edge of the right border
-     *
-     * @param level The level of the game
-     * @param centre A randomized centre location
-     * @param moveSpeed The move speed of the pipe depending on timescale
-     */
-    public PipeSet(int level, int centre, double moveSpeed) {
-        if (level == 0) {
-            TOP = new Image("res/level/plasticPipe.png");
-            BOTTOM = new Image("res/level/plasticPipe.png");
-        } else {
-            TOP = new Image("res/level-1/steelPipe.png");
-            BOTTOM = new Image("res/level-1/steelPipe.png");
-        }
+        addPipes(level, centre);
+        addFlames(centre);
 
-        TOP_FLAME = new Image("res/level-1/flame.png");
-        BOT_FLAME = new Image("res/level-1/flame.png");
-        OPTION = new DrawOptions().setRotation(Math.PI);
-
-        // Get window parameters
-        int width = Window.getWidth();
-        int height = Window.getHeight();
-
-        // Load positions with spacing in y-axis, pipe rendered from centre
-        topPosition = new Point(width, - (height / 2.0) + centre);
-        botPosition = new Point(width, (height / 2.0) + centre + SPACING);
-
-        // Get position of flames right out of the pipe
-        topFlamePosition = new Point(width, centre + (TOP_FLAME.getHeight() / 2.0) - 1);
-        botFlamePosition = new Point(width, centre + SPACING - (BOT_FLAME.getHeight() / 2.0) + 1);
-
+        frameCounter = 0;
+        flameCounter = 0;
         hasPassed = false;
         hasDrawnFlames = false;
-        this.moveSpeed = moveSpeed;
         this.LEVEL = level;
     }
 
-    /**
-     * Draw top and bottom pipes
-     */
-    public void drawPipes() {
-        TOP.draw(topPosition.x, topPosition.y);
-        BOTTOM.draw(botPosition.x, botPosition.y, OPTION);
+    public void addPipes(int level, int centre) {
+        int height = Window.getHeight();
+        int width = Window.getWidth();
+
+        String directory;
+        Point topPos = new Point(width, - (height / 2.0) + centre);
+        Point botPos = new Point(width, (height / 2.0) + centre + SPACING);
+        DrawOptions option = new DrawOptions().setRotation(Math.PI);
+
+        // Add pipes to the list
+        if (level == 0)
+            directory = "res/level/plasticPipe.png";
+        else
+            directory = "res/level-1/steelPipe.png";
+
+        PIPES.add(new RightToLeft(new Image(directory), topPos));
+        PIPES.add(new RightToLeft(new Image(directory), botPos, option));
     }
 
+    public void addFlames(int centre) {
+        int width = Window.getWidth();
+        String directory = "res/level-1/flame.png";
+        Image flame = new Image(directory);
+        DrawOptions option = new DrawOptions().setRotation(Math.PI);
 
-    /**
-     * Draw flames from pipes
-     */
-    public void drawFlames() {
-        TOP_FLAME.draw(topFlamePosition.x, topFlamePosition.y);
-        BOT_FLAME.draw(botFlamePosition.x, botFlamePosition.y, OPTION);
+        Point topPos = new Point(width, centre + (flame.getHeight() / 2.0) - 1);
+        Point botPos = new Point(width, centre + SPACING - (flame.getHeight() / 2.0) + 1);
+
+        FLAMES.add(new RightToLeft(new Image(directory), topPos));
+        FLAMES.add(new RightToLeft(new Image(directory), botPos, option));
     }
 
-    /**
-     * Move pipes from right to left at constant speed
-     */
-    public void leftShift() {
-        topPosition = new Point(topPosition.x - moveSpeed, topPosition.y);
-        botPosition = new Point(botPosition.x - moveSpeed, botPosition.y);
+    // Method to draw objects
+    public void drawObjects() {
+        frameCounter += 1;
 
+        // Draw pipes
+        for (RightToLeft pipe: PIPES)
+            pipe.drawObject();
+
+        // Draw Flames
         if (LEVEL == 1) {
-            topFlamePosition = new Point(topFlamePosition.x - moveSpeed, topFlamePosition.y);
-            botFlamePosition = new Point(botFlamePosition.x - moveSpeed, botFlamePosition.y);
+            if (hasDrawnFlames)
+                for (RightToLeft flame: FLAMES)
+                    flame.drawObject();
+
+            // Update condition based on frame counter
+            if (frameCounter % FLAME_SPAWN_INTERVAL == 0)
+                if(!hasDrawnFlames) {
+                    hasDrawnFlames = true;
+                    flameCounter = frameCounter + FLAME_SPAWN_LENGTH;
+                }
+            if (frameCounter == flameCounter)
+                hasDrawnFlames = false;
         }
     }
 
-    /**
-     * Check if bird (and weapon) has collided with the pipe set
-     *
-     * @param bird The bird in play
-     * @return Return true if bird has collided
-     */
-    public boolean birdWeaponCollision(Bird bird) {
-        if (bird.getHasPickedWeapon())
-            return checkCollision(bird.getWeapon().getBox());
-        return checkCollision(bird.getBox());
+    // Method to left shift
+    public void leftShift() {
+        for (RightToLeft pipe: PIPES)
+            pipe.leftShift();
+        for (RightToLeft flame: FLAMES)
+            flame.leftShift();
     }
 
-    /**
-     * Check if pipe set is beyond window (out-of-bounds)
-     *
-     * @return Return true if out-of-bounds
-     */
-    public boolean checkWindowBounds() {
-        if (hasPassed)
-            return getBox().right() < 0;
+    // check if bird and weapon has collided with pipe set
+    public boolean birdWeaponCollision(Bird bird) {
+        if (bird.getHasPickedWeapon())
+            if (checkCollision(bird.getWeapon().getBox(), true))
+                return true;
+        return checkCollision(bird.getBox(), true);
+    }
+
+    // Check collision between objects
+    public boolean checkCollision(Rectangle box, boolean withFlames) {
+        if (withFlames)
+            if (hasDrawnFlames)
+                for (RightToLeft flame: FLAMES)
+                    if (box.intersects(flame.getBox()))
+                        return true;
+        for (RightToLeft pipe: PIPES)
+            if(box.intersects(pipe.getBox()))
+                return true;
+
+        // No intersection
         return false;
     }
 
-    /**
-     * Check collision between both top and bottom pipes
-     *
-     * @param box The box of the object required to check collision with (Bird)
-     * @return Return true if collision has occurred
-     */
-    public boolean checkCollision(Rectangle box) {
-        if (hasDrawnFlames) {
-            if (box.intersects(TOP_FLAME.getBoundingBoxAt(topFlamePosition)))
-                return true;
-            else if (box.intersects(BOT_FLAME.getBoundingBoxAt(botFlamePosition)))
-                return true;
-        }
-        return (box.intersects(getTopRectangle()) || box.intersects(getBotRectangle()));
+    // Check if still in window
+    public boolean checkWindowBounds() {
+        if (hasPassed)
+            return PIPES.get(0).getBox().right() < 0;
+        return false;
     }
 
-    /**
-     * Check if the bird has passed the pipe (no collision)
-     *
-     * @param bird The bird in play
-     * @return Return true if bird has passed succesfully
-     */
     public boolean checkBirdPass(Bird bird) {
-        if (bird.getPosition().x > getBox().right()){
+        if (bird.getPosition().x > PIPES.get(0).getBox().right())
             hasPassed = true;
-        }
         return hasPassed;
     }
 
-    /**
-     * Return rectangle of top pipe
-     *
-     * @return Returns rectangle of top pipe
-     */
-    public Rectangle getTopRectangle() {
-        return TOP.getBoundingBoxAt(topPosition);
-    }
-
-    /**
-     * Return rectangle of bottom pipe
-     *
-     * @return Returns rectangle of bottom pipe
-     */
-    public Rectangle getBotRectangle() {
-        return BOTTOM.getBoundingBoxAt(botPosition);
-    }
-
-    /**
-     * Return box of top pipe, used for checking passes
-     *
-     * @return Returns rectangle of top pipe
-     */
-    public Rectangle getBox() {
-        return getTopRectangle();
-    }
-
-    /**
-     * Return pipe property - hasPassed
-     *
-     * @return Returns hasPassed if bird has passed pipe
-     */
     public boolean getHasPassed() {
         return hasPassed;
     }
 
-    /**
-     * Return pipe property - getLevel
-     *
-     * @return Returns level of pipe (plastic/steel)
-     */
-    public int getLevel() {
-        return LEVEL;
-    }
-
-    /**
-     * Return width of pipe
-     *
-     * @return Returns width
-     */
     public double getWidth() {
-        return TOP.getWidth();
+        return PIPES.get(0).getWidth();
     }
 
-    /**
-     * Return current speed of pipe set
-     *
-     * @return Returns moveSpeed
-     */
-    public double getMoveSpeed(){
-        return moveSpeed;
+    public double getX() {
+        return PIPES.get(0).getPosition().x;
     }
 
-    /**
-     * Return current position of top pipe
-     *
-     * @return Returns Point of top pipe
-     */
-    public Point getPosition() {
-        return topPosition;
-    }
-
-    /**
-     * Setter for current speed based on timescale control
-     */
-    public void setMoveSpeed(double moveSpeed) {
-        this.moveSpeed = moveSpeed;
-    }
-
-    /**
-     * Setter for hasDrawnFlames for flame visibility
-     */
-    public void setHasDrawnFlames(boolean hasDrawnFlames) {
-        this.hasDrawnFlames = hasDrawnFlames;
+    public int getLEVEL() {
+        return LEVEL;
     }
 }

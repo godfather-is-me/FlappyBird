@@ -6,46 +6,45 @@ import java.util.Random;
  * Contains all standard methods used by the weapon.
  */
 
-public abstract class AbstractWeapon implements Spawnable{
-    // Variables
-    private Point position;
-    private int frameCounter;
-    private double moveSpeed;
-    private boolean isShot;
-    private boolean isPicked;
-    private boolean hasPassed;
-
+public class Weapon extends RightToLeft{
     // Constants
     private final int RANGE;
-    private final Image WEAPON;
     private final int SHOOT_SPEED = 5;
     private final double ADJUSTMENT = 0.6;
+
+    // Game Variables
+    private int frameCounter;
+    private boolean isShot;
+    private boolean isPicked;
 
     // Enum
     protected enum WEAPON_TYPE {BOMB, ROCK}
     private final WEAPON_TYPE type;
+    private final int BOMB_RANGE = 50;
+    private final int ROCK_RANGE = 25;
 
     /**
      * The AbstractWeapon constructor used as a super constructor for
      * bombs and rocks to create a weapon object.
      *
-     * @param range The range of the weapon when shot
      * @param weapon An Image object containing the weapon in context
      * @param type The specific type of weapon required, available from WEAPON_TYPE enum
      * @param pipeSet The pipe set after which this particular weapon has been spawned
      */
-    public AbstractWeapon (int range, Image weapon, WEAPON_TYPE type, PipeSet pipeSet) {
-        this.WEAPON = weapon;
-        this.RANGE = range;
+    public Weapon (Image weapon, WEAPON_TYPE type, PipeSet pipeSet) {
+        super(weapon, new Point(0,0));
+        position = setInitialPosition(pipeSet);
+
         this.type = type;
+        if (type == WEAPON_TYPE.BOMB)
+            RANGE = BOMB_RANGE;
+        else
+            RANGE = ROCK_RANGE;
 
-        moveSpeed = pipeSet.getMoveSpeed();
         frameCounter = 0;
-
         isShot = false;
         isPicked = false;
         hasPassed = false;
-        position = setInitialPosition(pipeSet);
     }
 
     /**
@@ -62,7 +61,7 @@ public abstract class AbstractWeapon implements Spawnable{
         int pipeSpawnTime = GameManager.PIPE_SPAWN_TIME[GameManager.timeScale];
         int upperBound = GameManager.Y_UPPER_BOUND;
         int lowerBound = GameManager.Y_LOWER_BOUND;
-        double speed = GameManager.SPEED[GameManager.timeScale];
+        double speed = GameManager.moveSpeed;
 
         // Distance to next pipe
         double distance = (pipeSpawnTime * speed) - (pipeSet.getWidth() + getWidth());
@@ -80,30 +79,7 @@ public abstract class AbstractWeapon implements Spawnable{
      */
     public boolean checkPickUp(Bird bird) {
         if (!isPicked)
-            return getBox().intersects(bird.getBox());
-        return false;
-    }
-
-    /**
-     * Check if the weapon has passed the bird on screen
-     *
-     * @param bird The bird in play
-     * @return Returns true if weapon has passed the bird
-     */
-    public boolean checkBirdPass(Bird bird) {
-        if (bird.getPosition().x > WEAPON.getBoundingBoxAt(position).right())
-            hasPassed = true;
-        return hasPassed;
-    }
-
-    /**
-     * Check if weapon has left the window
-     *
-     * @return Returns true if weapon is outside window
-     */
-    public boolean checkWindowBounds() {
-        if (hasPassed)
-            return getBox().right() < 0;
+            return checkIntersection(bird.getBox());
         return false;
     }
 
@@ -123,11 +99,8 @@ public abstract class AbstractWeapon implements Spawnable{
      * @return Returns true if pipe and weapon intersect
      */
     public boolean checkDestruction(PipeSet pipeSet) {
-        if ((pipeSet.getLevel() == 0) || (pipeSet.getLevel() == 1 && type == WEAPON_TYPE.BOMB)){
-            if (pipeSet.getTopRectangle().intersects(getBox()))
-                return true;
-            return pipeSet.getBotRectangle().intersects(getBox());
-        }
+        if ((pipeSet.getLEVEL() == 0) || (pipeSet.getLEVEL() == 1 && type == WEAPON_TYPE.BOMB))
+            return  pipeSet.checkCollision(getBox(), false);
         return false;
     }
 
@@ -153,12 +126,6 @@ public abstract class AbstractWeapon implements Spawnable{
         position = new Point(x, y);
     }
 
-    /**
-     * Draw weapon at its current position
-     */
-    public void drawWeapon() {
-        WEAPON.draw(position.x, position.y);
-    }
 
     /**
      * Update properties of weapon from picked to shot
@@ -168,40 +135,6 @@ public abstract class AbstractWeapon implements Spawnable{
         isShot = true;
     }
 
-    /**
-     * Move the weapon from right to left if it has not been picked
-     */
-    public void leftShift() {
-        position = new Point(position.x - moveSpeed, position.y);
-    }
-
-    /**
-     * Getter for bounding box of the weapon
-     *
-     * @return Return bounding box
-     */
-    // Method to get bounding box of weapon
-    public Rectangle getBox() {
-        return WEAPON.getBoundingBoxAt(position);
-    }
-
-    /**
-     * Return the width of the weapon
-     *
-     * @return Returns the width
-     */
-    public double getWidth() {
-        return WEAPON.getWidth();
-    }
-
-    /**
-     * Return the weapon property hasPassed
-     *
-     * @return Returns true if weapon has passed
-     */
-    public boolean getHasPassed() {
-        return hasPassed;
-    }
 
     /**
      * Setter for weapon property isShot
@@ -219,14 +152,5 @@ public abstract class AbstractWeapon implements Spawnable{
      */
     public void setIsPicked(boolean isPicked) {
         this.isPicked = isPicked;
-    }
-
-    /**
-     * Setter for current move speed of weapon
-     *
-     * @param moveSpeed Current speed as set by increase/decrease keys
-     */
-    public void setMoveSpeed(double moveSpeed){
-        this.moveSpeed = moveSpeed;
     }
 }

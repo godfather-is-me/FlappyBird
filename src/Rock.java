@@ -1,9 +1,8 @@
 import bagel.*;
 
-public class Rock extends AbstractWeapon {
-    public static final int ROCK_RANGE = 25;
+public class Rock extends Weapon {
 
     public Rock(PipeSet pipeSet) {
-        super(ROCK_RANGE, new Image("res/level-1/rock.png"), WEAPON_TYPE.ROCK, pipeSet);
+        super(new Image("res/level-1/rock.png"), WEAPON_TYPE.ROCK, pipeSet);
     }
 }

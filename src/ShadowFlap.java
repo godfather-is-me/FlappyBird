@@ -11,8 +11,8 @@ import bagel.*;
 
 public class ShadowFlap extends AbstractGame {
     // Constants
-    public static final int LEVEL0_SCORE = 0;
-    public static final int LEVEL1_SCORE = 15;
+    public static final int LEVEL0_SCORE = 1;
+    public static final int LEVEL1_SCORE = 30;
 
     // Game objects
     private final Messages MESSAGES;

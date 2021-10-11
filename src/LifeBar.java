@@ -18,7 +18,7 @@ public class LifeBar {
         if (level == 0)
             LIVES = 3;
         else
-            LIVES = 6;
+            LIVES = 600;
         lives_left = LIVES;
     }
 

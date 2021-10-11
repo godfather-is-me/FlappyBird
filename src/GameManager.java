@@ -19,16 +19,16 @@ public class GameManager {
 
     // Non-final static
     public static int timeScale;
+    public static double moveSpeed;
 
     // Store all pipes from current window in a Queue
     private final Queue<PipeSet> GAME_PIPES;
-    private final Queue<AbstractWeapon> WEAPONS;
+    private final Queue<Weapon> WEAPONS;
     private final Bird BIRD;
 
     // Game variables
     private int score;
     private int frameCounter;
-    private int flameDuration;
     private final int LEVEL;
     private PipeSet lastPipe;
 
@@ -51,13 +51,14 @@ public class GameManager {
         GAME_PIPES = new LinkedList<>();
         WEAPONS = new LinkedList<>();
 
+        calculateTimeScales();
+
         // Game variables
         score = 0;
         timeScale = 0;
-        flameDuration = 0;
         lastPipe = null;
         this.LEVEL = level;
-        calculateTimeScales();
+        moveSpeed = SPEED[timeScale];
     }
 
     /**
@@ -74,24 +75,12 @@ public class GameManager {
         checkWeaponBounds();
 
         // Draw all pipes in queue
-        for(PipeSet pipeSet : GAME_PIPES) {
-            pipeSet.drawPipes();
-
-            // Draw flames
-            if (pipeSet.getLevel() == 1) {
-                if ((frameCounter % FLAME_SPAWN_LENGTH) == 0)
-                    flameDuration = frameCounter + 3;
-                if (frameCounter < flameDuration) {
-                    pipeSet.drawFlames();
-                    pipeSet.setHasDrawnFlames(true);
-                } else
-                    pipeSet.setHasDrawnFlames(false);
-            }
-        }
+        for(PipeSet pipeSet : GAME_PIPES)
+            pipeSet.drawObjects();
 
         // Draw all weapons in queue
-        for (AbstractWeapon weapon: WEAPONS)
-            weapon.drawWeapon();
+        for (Weapon weapon: WEAPONS)
+            weapon.drawObject();
 
         // Draw bird
         BIRD.drawBird(frameCounter);
@@ -119,13 +108,13 @@ public class GameManager {
         PipeSet tempPipe;
         // Choose only plastic pipes
         if (LEVEL == 0) {
-            tempPipe = new PipeSet(LEVEL, LEVEL0_GAPS[rand.nextInt(LEVEL0_GAPS.length)], SPEED[timeScale]);
+            tempPipe = new PipeSet(LEVEL, LEVEL0_GAPS[rand.nextInt(LEVEL0_GAPS.length)]);
             GAME_PIPES.add(tempPipe);
         }
         else {
             int randPipe = rand.nextInt(2);
             int randY = rand.nextInt(Y_UPPER_BOUND - Y_LOWER_BOUND) + Y_LOWER_BOUND;
-            tempPipe = new PipeSet(randPipe, randY, SPEED[timeScale]);
+            tempPipe = new PipeSet(randPipe, randY);
             // Add weapon and pipe set
             GAME_PIPES.add(tempPipe);
             addWeapon(tempPipe);
@@ -154,7 +143,7 @@ public class GameManager {
         for (PipeSet pipeSet: GAME_PIPES)
             pipeSet.leftShift();
 
-        for (AbstractWeapon weapon: WEAPONS)
+        for (Weapon weapon: WEAPONS)
             weapon.leftShift();
     }
 
@@ -206,7 +195,7 @@ public class GameManager {
             break;
         }
 
-        for (AbstractWeapon weapon: WEAPONS) {
+        for (Weapon weapon: WEAPONS) {
             if (weapon.getHasPassed())
                 continue;
             weapon.checkBirdPass(BIRD);
@@ -241,7 +230,7 @@ public class GameManager {
      * @return Returns true if there is enough distance between pipes
      */
     public boolean checkDistance() {
-        double distanceFromRight = Window.getWidth() - lastPipe.getPosition().x;
+        double distanceFromRight = Window.getWidth() - lastPipe.getX();
         double distanceBetweenPipes = SPEED[timeScale] * PIPE_SPAWN_TIME[timeScale];
         return (distanceFromRight >= (distanceBetweenPipes * ADJUSTMENT));
     }
@@ -251,7 +240,7 @@ public class GameManager {
      */
     public void pickWeapon() {
         if (!BIRD.getHasPickedWeapon())
-            for (AbstractWeapon weapon : WEAPONS) {
+            for (Weapon weapon : WEAPONS) {
                 if (weapon.getHasPassed())
                     continue;
 
@@ -317,10 +306,6 @@ public class GameManager {
 
     // Method to set speed for any configuration
     private void setSpeed() {
-        for (PipeSet pipeSet: GAME_PIPES)
-            pipeSet.setMoveSpeed(SPEED[timeScale]);
-        for (AbstractWeapon weapon: WEAPONS)
-            weapon.setMoveSpeed(SPEED[timeScale]);
+        moveSpeed = SPEED[timeScale];
     }
-
 }
