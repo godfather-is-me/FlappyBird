@@ -8,19 +8,45 @@ import bagel.Window;
 
 public class GameManager {
     // Static constants
+    /**
+     * The minimum timescale possible
+     */
     private static final int MIN_TIMESCALE = 1;
+
+    /**
+     * The maximum timescale possible
+     */
     private static final int MAX_TIMESCALE = 5;
+
+    /**
+     * The y-axis lower bound for randomized y values
+     */
     public static final int Y_LOWER_BOUND = 100;
+
+    /**
+     * The y-axis upper bound for randomized y values
+     */
     public static final int Y_UPPER_BOUND = 500;
 
-    public static final int[] PIPE_SPAWN_TIME = new int[MAX_TIMESCALE];
+    /**
+     * An array of speed for each timescale, create w.r.t initial speed
+     */
     public static final double[] SPEED = new double[MAX_TIMESCALE];
+    /**
+     * An array of time frames spawned for each timescale, created w.r.t. initial time frame
+     */
+    public static final int[] PIPE_SPAWN_TIME = new int[MAX_TIMESCALE];
 
-    // Non-final static
+    /**
+     * The timescale of the game used by all classes
+     */
     public static int timeScale;
+    /**
+     * The move speed for the current timescale
+     */
     public static double moveSpeed;
 
-    // Store all pipes from current window in a Queue
+    // Store weapons and game pipes in window as a queue
     private final Bird BIRD;
     private final Queue<Weapon> WEAPONS;
     private final Queue<PipeSet> GAME_PIPES;

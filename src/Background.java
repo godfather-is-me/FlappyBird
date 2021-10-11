@@ -1,11 +1,18 @@
 import bagel.*;
 
+/**
+ * Creates and displays the backgrounds based on current level played
+ */
+
 public class Background {
     private final Image BACKGROUND;
     private final double WINDOW_WIDTH;
     private final double WINDOW_HEIGHT;
 
-    // Constructor
+    /**
+     * Creates a background object with current level of the game
+     * @param level Level of the game playing
+     */
     public Background(int level){
         // Window size never changes
         WINDOW_WIDTH = Window.getWidth() / 2.0;
@@ -18,7 +25,9 @@ public class Background {
             BACKGROUND = new Image("res/level-1/background.png");
     }
 
-    // Function to display background
+    /**
+     * Display background on screen
+     */
     public void displayBackground(){
         BACKGROUND.draw(WINDOW_WIDTH, WINDOW_HEIGHT);
     }

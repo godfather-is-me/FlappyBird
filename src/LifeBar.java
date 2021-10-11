@@ -1,5 +1,8 @@
 import bagel.*;
 
+/**
+ * A class to store all the lives of the bird and update accordingly
+ */
 public class LifeBar {
     private final Image HEALTH;
     private final Image NO_HEALTH;
@@ -10,7 +13,10 @@ public class LifeBar {
     private final int LIVES;
     private int lives_left;
 
-    // Constructor
+    /**
+     * Creates a life bar for each level of the bird
+     * @param level The current level being played
+     */
     public LifeBar(int level) {
         HEALTH = new Image("res/level/fullLife.png");
         NO_HEALTH = new Image ("res/level/noLife.png");
@@ -18,11 +24,13 @@ public class LifeBar {
         if (level == 0)
             LIVES = 3;
         else
-            LIVES = 600;
+            LIVES = 6;
         lives_left = LIVES;
     }
 
-    // Method to render number of lives left on screen
+    /**
+     * Render life bar on screen with given number of lives
+     */
     public void drawLifeBar() {
         // Draw lives
         for(int i = 0; i < lives_left; ++i)
@@ -32,12 +40,18 @@ public class LifeBar {
             NO_HEALTH.drawFromTopLeft(X_POS + (HEART_DISTANCE * i), Y_POS);
     }
 
-    // Method to update lives left
+    /**
+     * Update lives lost with crash or out-of-bounds
+     */
     public void lifeLost() {
         lives_left -= 1;
     }
 
-    // Method to check if bird has lives left
+    /**
+     * Check if the bird has lives left
+     *
+     * @return Returns true if lives are left
+     */
     public boolean hasLives() {
         return lives_left > 0;
     }

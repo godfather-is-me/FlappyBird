@@ -11,14 +11,14 @@ import bagel.*;
 
 public class ShadowFlap extends AbstractGame {
     // Constants
-    public static final int LEVEL0_SCORE = 1;
-    public static final int LEVEL1_SCORE = 20;
+    private final int LEVEL0_SCORE = 1;
+    private final int LEVEL1_SCORE = 20;
 
     // Game objects
     private final Messages MESSAGES;
-    private Background BACKGROUND;
     private Bird BIRD;
     private GameManager MANAGER;
+    private Background BACKGROUND;
 
     // Game variables
     private Integer score;
@@ -29,7 +29,9 @@ public class ShadowFlap extends AbstractGame {
     private boolean gameWon;
     private boolean loadedObjects;
 
-    // Constructor
+    /**
+     * Constructor of the game engine used to create all the base objects of flappy bird
+     */
     public ShadowFlap() {
         super(1024, 768, "Flappy Bird");
 
@@ -51,6 +53,7 @@ public class ShadowFlap extends AbstractGame {
 
     /**
      * The entry point for the program.
+     * @param args Command line arguments
      */
     public static void main(String[] args) {
         ShadowFlap game = new ShadowFlap();
@@ -128,7 +131,9 @@ public class ShadowFlap extends AbstractGame {
             Window.close();
     }
 
-    // Method to check if the game won or lost
+    /**
+     * Check if game is over and the outcome
+     */
     public void checkGameOver() {
         // Collision with pipes/Out of bounds and no lives left
         if (MANAGER.checkCollisionAndLives() || BIRD.checkOutOfBoundsAndLives())
@@ -152,7 +157,9 @@ public class ShadowFlap extends AbstractGame {
 
     }
 
-    // Method to transition from level 0 to level 1
+    /**
+     * Transition from level 0 to level 1 (reinitialize objects)
+     */
     public void levelUp() {
         if (frameCounter < 20)
             MESSAGES.getCentreMessage(Messages.LEVEL_UP);

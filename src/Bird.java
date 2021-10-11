@@ -1,6 +1,10 @@
 import bagel.*;
 import bagel.util.*;
 
+/**
+ * Contains all bird functionality used throughout the game
+ */
+
 public class Bird {
     // Local variables
     private final Image WING_UP;
@@ -19,7 +23,11 @@ public class Bird {
     private final double TERMINAL_VELOCITY = 10.0;
     private final Point INITIAL_POSITION = new Point(200, 350);
 
-    // Bird constructor
+    /**
+     * Creates a bird object based on the level of the game
+     *
+     * @param level Current level of the game
+     */
     public Bird(Integer level) {
         String str_lvl = level.toString();
 
@@ -36,7 +44,11 @@ public class Bird {
         hasShotWeapon = false;
     }
 
-    // Method to flap bird wings once every 10 frames
+    /**
+     * Renders bird on screen and flaps every 10 frames
+     *
+     * @param frameCounter Count the number of frames since bird has been spawned
+     */
     public void drawBird(int frameCounter) {
         if ((frameCounter % 10) == 0)
             WING_UP.draw(position.x, position.y);
@@ -63,7 +75,9 @@ public class Bird {
         }
     }
 
-    // Method to add gravity effect
+    /**
+     * Add gravity like fall to the bird
+     */
     public void gravity() {
         position = new Point(position.x, position.y + velocity);
         // Accelerate bird
@@ -73,19 +87,29 @@ public class Bird {
             velocity = TERMINAL_VELOCITY;
     }
 
-    // Method to add space bar jump
+    /**
+     * Add a jump to the bird for flight
+     *
+     * @param isPressed Key being pressed for jump
+     */
     public void pressedSpace(boolean isPressed) {
         velocity = (isPressed) ? -6.0 : velocity;
     }
 
-    // Method to remove weapon
+    /**
+     * Remove weapon from bird after collision/out-of-range
+     */
     public void removeWeapon() {
         weapon.setIsShot(false);
         hasShotWeapon = false;
         weapon = null;
     }
 
-    // Method to check if bird is out of bounds
+    /**
+     * Check if bird has gone out of bounds
+     *
+     * @return Return true if bird is out bounds and has no lives left
+     */
     public boolean checkOutOfBoundsAndLives() {
         // If the centre of the bird is out-of-bounds
         if (position.y < 0 || position.y > Window.getHeight()) {
@@ -99,55 +123,89 @@ public class Bird {
         return false;
     }
 
-    // Method to get current position of the bird
+    /**
+     * Returns the current position of the bird
+     *
+     * @return Returns position of bird
+     */
     public Point getPosition() {
         return position;
     }
 
-    // Method to get the weapon of the bird
+    /**
+     * Returns the weapon of the bird
+     *
+     * @return Weapon currently held by bird
+     */
     public Weapon getWeapon() {
         return weapon;
     }
 
-    // Method to get hasPickedWeapon
+    /**
+     * Return value of hasPickedWeapon
+     *
+     * @return Returns true if bird has picked the weapon
+     */
     public boolean getHasPickedWeapon() {
         return hasPickedWeapon;
     }
 
-    // Method to get hasShotWeapon
+    /**
+     * Return value of hasShotWeapon
+     *
+     * @return Returns true if bird has shot the weapon
+     */
     public boolean getHasShotWeapon() {
         return hasShotWeapon;
     }
 
-    // Method to get bounding box of the bird
+    /**
+     * Returns bounding box of the bird
+     *
+     * @return Returns the rectangle of the bird
+     */
     public Rectangle getBox() {
         return WING_UP.getBoundingBoxAt(position);
     }
 
-    // Method to set hasShotWeapon
+    /**
+     * Setter for hasShotWeapon, sets as true when called
+     */
     public void setHasShotWeapon() {
         this.hasShotWeapon = true;
         this.hasPickedWeapon = false;
         weapon.shootWeapon();
     }
 
-    // Method to set the weapon of the bird
+    /**
+     * Setter to assign weapon to the bird
+     *
+     * @param weapon Weapon that has been picked by bird
+     */
     public void setWeapon(Weapon weapon) {
         this.weapon = weapon;
         hasPickedWeapon = true;
     }
 
-    // Method to check if bird has lives left
+    /**
+     * Check if the bird has lives left
+     *
+     * @return Returns true if lives left
+     */
     public boolean hasLives() {
         return LIFEBAR.hasLives();
     }
 
-    // Method to update lifeBar after collision
+    /**
+     * Update life bar (after collision)
+     */
     public void lifeLost() {
         LIFEBAR.lifeLost();
     }
 
-    // Method to respawn bird at initial position once out of bounds
+    /**
+     * Respawn bird at initial position once out-of-bounds
+     */
     public void respawn() {
         position = INITIAL_POSITION;
         velocity = 0;

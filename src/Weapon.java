@@ -24,7 +24,7 @@ public class Weapon extends RightToLeft{
     private final int ROCK_RANGE = 25;
 
     /**
-     * The AbstractWeapon constructor used as a super constructor for
+     * The Weapon constructor used as a super constructor for
      * bombs and rocks to create a weapon object.
      *
      * @param weapon An Image object containing the weapon in context
@@ -125,7 +125,6 @@ public class Weapon extends RightToLeft{
         }
         position = new Point(x, y);
     }
-
 
     /**
      * Update properties of weapon from picked to shot
