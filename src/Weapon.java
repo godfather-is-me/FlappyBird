@@ -135,7 +135,6 @@ public class Weapon extends RightToLeft{
         isShot = true;
     }
 
-
     /**
      * Setter for weapon property isShot
      *

@@ -7,10 +7,9 @@ import bagel.Window;
  */
 
 public class GameManager {
-    // Constants
-    public static final int MAX_TIMESCALE = 5;
-    public static final int MIN_TIMESCALE = 1;
-    public static final int FLAME_SPAWN_LENGTH = 20;
+    // Static constants
+    private static final int MIN_TIMESCALE = 1;
+    private static final int MAX_TIMESCALE = 5;
     public static final int Y_LOWER_BOUND = 100;
     public static final int Y_UPPER_BOUND = 500;
 
@@ -22,9 +21,9 @@ public class GameManager {
     public static double moveSpeed;
 
     // Store all pipes from current window in a Queue
-    private final Queue<PipeSet> GAME_PIPES;
-    private final Queue<Weapon> WEAPONS;
     private final Bird BIRD;
+    private final Queue<Weapon> WEAPONS;
+    private final Queue<PipeSet> GAME_PIPES;
 
     // Game variables
     private int score;
@@ -304,7 +303,7 @@ public class GameManager {
             }
     }
 
-    // Method to set speed for any configuration
+    // Method to set speed for given timescale change
     private void setSpeed() {
         moveSpeed = SPEED[timeScale];
     }

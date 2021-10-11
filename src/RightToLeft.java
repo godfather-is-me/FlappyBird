@@ -77,6 +77,4 @@ public class RightToLeft {
     public Point getPosition() {
         return position;
     }
-
-
 }
