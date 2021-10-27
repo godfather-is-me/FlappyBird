@@ -1,6 +1,5 @@
 import bagel.*;
 import bagel.util.*;
-
 import java.util.ArrayList;
 
 /**
@@ -8,17 +7,15 @@ import java.util.ArrayList;
  */
 
 public class Bird {
-    // Local variables
     private final Image WING_UP;
     private final Image WING_DOWN;
     private final LifeBar LIFEBAR;
-    private final ArrayList<Weapon> weapons;
+    private final ArrayList<Weapon> WEAPONS;
 
     private Point position;
     private double velocity;
     private boolean hasPickedWeapon;
 
-    // Constants
     private final double WIDTH;
     private final double ACCELERATION = 0.4;
     private final double TERMINAL_VELOCITY = 10.0;
@@ -37,12 +34,12 @@ public class Bird {
 
         LIFEBAR = new LifeBar(level);
         WIDTH = WING_UP.getWidth();
+        WEAPONS = new ArrayList<>();
 
         // Load bird variables
         velocity = 0;
         hasPickedWeapon = false;
         position = INITIAL_POSITION;
-        weapons = new ArrayList<>();
     }
 
     /**
@@ -70,7 +67,7 @@ public class Bird {
      * Draw all weapons held and shot by bird from the weapons array
      */
     public void drawWeapons() {
-        for (Weapon weapon: weapons) {
+        for (Weapon weapon: WEAPONS) {
             if (weapon.getIsPicked())
                 weapon.updatePosition(position, WIDTH);
             else if (weapon.getIsShot())
@@ -106,9 +103,11 @@ public class Bird {
 
     /**
      * Remove weapon from bird after collision/out-of-range
+     *
+     * @param weapon The weapon to be removed from array list
      */
     public void removeWeapon(Weapon weapon) {
-        weapons.remove(weapon);
+        WEAPONS.remove(weapon);
     }
 
     /**
@@ -136,10 +135,10 @@ public class Bird {
      * @return Returns true if pipe and shot weapon intersect
      */
     public boolean checkWeaponDestruction(PipeSet pipeSet) {
-        for (Weapon weapon: weapons)
+        for (Weapon weapon: WEAPONS)
             if (weapon.checkDestruction(pipeSet)) {
                 removeWeapon(weapon);
-                return true;
+                return !((weapon.getType() == Weapon.WEAPON_TYPE.ROCK) && (pipeSet.getLEVEL() == 1));
             }
         return false;
     }
@@ -149,7 +148,7 @@ public class Bird {
      */
     public void shootTheWeapon() {
         this.hasPickedWeapon = false;
-        Weapon temp = weapons.get(weapons.size() - 1);
+        Weapon temp = WEAPONS.get(WEAPONS.size() - 1);
         if (!temp.getIsShot())
             temp.shootWeapon();
     }
@@ -178,7 +177,7 @@ public class Bird {
      * @return Returns weapon held by bird
      */
     public Weapon getPickedWeapon() {
-        return weapons.get(weapons.size() - 1);
+        return WEAPONS.get(WEAPONS.size() - 1);
     }
 
     /**
@@ -196,7 +195,7 @@ public class Bird {
      * @param weapon Weapon that has been picked by bird
      */
     public void setWeapon(Weapon weapon) {
-        weapons.add(weapon);
+        WEAPONS.add(weapon);
         hasPickedWeapon = true;
     }
 

@@ -19,7 +19,7 @@ public class Weapon extends RightToLeft {
 
     // Enum
     protected enum WEAPON_TYPE {BOMB, ROCK}
-    private final WEAPON_TYPE type;
+    private final WEAPON_TYPE TYPE;
     private final int BOMB_RANGE = 50;
     private final int ROCK_RANGE = 25;
 
@@ -35,7 +35,7 @@ public class Weapon extends RightToLeft {
         super(weapon, new Point(0,0));
         position = setInitialPosition(pipeSet);
 
-        this.type = type;
+        this.TYPE = type;
         if (type == WEAPON_TYPE.BOMB)
             RANGE = BOMB_RANGE;
         else
@@ -100,8 +100,7 @@ public class Weapon extends RightToLeft {
      */
     public boolean checkDestruction(PipeSet pipeSet) {
         if (isShot)
-            if ((pipeSet.getLEVEL() == 0) || (pipeSet.getLEVEL() == 1 && type == WEAPON_TYPE.BOMB))
-                return  pipeSet.checkCollision(getBox(), false);
+            return  pipeSet.checkCollision(getBox(), false);
         return false;
     }
 
@@ -149,6 +148,15 @@ public class Weapon extends RightToLeft {
      */
     public boolean getIsShot() {
         return isShot;
+    }
+
+    /**
+     * Get the weapon type (bomb/rock)
+     *
+     * @return Returns the type of weapon
+     */
+    public WEAPON_TYPE getType() {
+        return TYPE;
     }
 
     /**

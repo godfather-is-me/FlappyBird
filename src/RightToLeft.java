@@ -13,7 +13,7 @@ public class RightToLeft {
     protected boolean hasPassed;
 
     /**
-     * Constructor for objects that move from right to left with no drawoptions (stand upright)
+     * Constructor for objects that move from right to left with no draw options (stand upright)
      *
      * @param image Image of the object
      * @param position Initial position of the object
@@ -25,7 +25,7 @@ public class RightToLeft {
     }
 
     /**
-     * Constructor for objects that move from right to left with specified drawoption variation
+     * Constructor for objects that move from right to left with specified draw option variation
      *
      * @param image Image of the object
      * @param position Initial position of the object

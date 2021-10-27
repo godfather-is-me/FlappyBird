@@ -46,12 +46,11 @@ public class GameManager {
      */
     public static double moveSpeed;
 
-    // Store weapons and game pipes in window as a queue
+    // Game variables
     private final Bird BIRD;
     private final Queue<Weapon> WEAPONS;
     private final Queue<PipeSet> GAME_PIPES;
 
-    // Game variables
     private int score;
     private int frameCounter;
     private final int LEVEL;
@@ -78,7 +77,6 @@ public class GameManager {
 
         calculateTimeScales();
 
-        // Game variables
         score = 0;
         timeScale = 0;
         lastPipe = null;
@@ -112,10 +110,9 @@ public class GameManager {
     }
 
     /**
-     * Spawn new objects and add them to the queue
+     * Spawn new objects and add them to the queue adjusting for timescale
      */
     public void addObjects() {
-        // Add pipes to the queue every 100 frames
         if (GAME_PIPES.isEmpty())
             lastPipe = addPipeSet();
         else if ((frameCounter % PIPE_SPAWN_TIME[timeScale]) == 0)
@@ -167,7 +164,6 @@ public class GameManager {
     public void leftShift() {
         for (PipeSet pipeSet: GAME_PIPES)
             pipeSet.leftShift();
-
         for (Weapon weapon: WEAPONS)
             weapon.leftShift();
     }
@@ -295,7 +291,7 @@ public class GameManager {
 
         for (int i = 1; i < MAX_TIMESCALE; ++i) {
             SPEED[i] = SPEED[i-1] * SPEED_FACTOR;
-            PIPE_SPAWN_TIME[i] = (int) (PIPE_SPAWN_TIME[i-1] / SPEED_FACTOR);
+            PIPE_SPAWN_TIME[i] = (int) Math.round(PIPE_SPAWN_TIME[i-1] / SPEED_FACTOR);
         }
     }
 

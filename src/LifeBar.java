@@ -21,6 +21,7 @@ public class LifeBar {
         HEALTH = new Image("res/level/fullLife.png");
         NO_HEALTH = new Image ("res/level/noLife.png");
 
+        // Lives constant depending on level
         if (level == 0)
             LIVES = 3;
         else

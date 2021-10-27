@@ -6,12 +6,11 @@ import bagel.*;
  *
  * @author Prathyush Prashanth Rao
  * Student number: 1102225
- *
  */
 
 public class ShadowFlap extends AbstractGame {
     // Constants
-    private final int LEVEL0_SCORE = 0;
+    private final int LEVEL0_SCORE = 10;
     private final int LEVEL1_SCORE = 30;
 
     // Game objects
@@ -44,11 +43,10 @@ public class ShadowFlap extends AbstractGame {
         gameOver = false;
         loadedObjects = true;
 
-        // Load objects
-        BACKGROUND = new Background(level);
         BIRD = new Bird(level);
-        MANAGER = new GameManager(level, BIRD);
         MESSAGES = new Messages();
+        BACKGROUND = new Background(level);
+        MANAGER = new GameManager(level, BIRD);
     }
 
     /**
@@ -81,7 +79,7 @@ public class ShadowFlap extends AbstractGame {
                 MESSAGES.getCentreMessage(Messages.START_MESSAGE);
                 if (level == 1)
                     MESSAGES.getShootMessage();
-                if (input.wasPressed(Keys.SPACE)){
+                if (input.wasPressed(Keys.SPACE)) {
                     frameCounter = 0;
                     gameOn = true;
                 }
@@ -154,7 +152,6 @@ public class ShadowFlap extends AbstractGame {
                 gameOver = true;
             }
         }
-
     }
 
     /**
