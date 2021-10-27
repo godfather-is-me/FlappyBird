@@ -1,7 +1,7 @@
 import bagel.*;
 
 /**
- * A class to store all the lives of the bird and update accordingly
+ * Class to store all the lives of the bird and update accordingly
  */
 public class LifeBar {
     private final Image HEALTH;

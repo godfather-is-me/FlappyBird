@@ -132,7 +132,7 @@ public class PipeSet {
      */
     public boolean birdWeaponCollision(Bird bird) {
         if (bird.getHasPickedWeapon())
-            if (checkCollision(bird.getWeapon().getBox(), true))
+            if (checkCollision(bird.getPickedWeapon().getBox(), true))
                 return true;
         return checkCollision(bird.getBox(), true);
     }

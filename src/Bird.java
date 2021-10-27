@@ -1,6 +1,8 @@
 import bagel.*;
 import bagel.util.*;
 
+import java.util.ArrayList;
+
 /**
  * Contains all bird functionality used throughout the game
  */
@@ -10,12 +12,11 @@ public class Bird {
     private final Image WING_UP;
     private final Image WING_DOWN;
     private final LifeBar LIFEBAR;
-    private Weapon weapon;
+    private final ArrayList<Weapon> weapons;
 
     private Point position;
     private double velocity;
     private boolean hasPickedWeapon;
-    private boolean hasShotWeapon;
 
     // Constants
     private final double WIDTH;
@@ -39,9 +40,9 @@ public class Bird {
 
         // Load bird variables
         velocity = 0;
-        position = INITIAL_POSITION;
         hasPickedWeapon = false;
-        hasShotWeapon = false;
+        position = INITIAL_POSITION;
+        weapons = new ArrayList<>();
     }
 
     /**
@@ -61,19 +62,24 @@ public class Bird {
         // Bird's lives
         LIFEBAR.drawLifeBar();
 
-        // Draw picked up weapon at beak
-        if (hasPickedWeapon) {
-            if (!(weapon == null)) {
+        // Draw weapons
+        drawWeapons();
+    }
+
+    /**
+     * Draw all weapons held and shot by bird from the weapons array
+     */
+    public void drawWeapons() {
+        for (Weapon weapon: weapons) {
+            if (weapon.getIsPicked())
                 weapon.updatePosition(position, WIDTH);
-                weapon.drawObject();
-            }
-        } else if (hasShotWeapon) {
-            if (!weapon.checkOutOfRange()) {
-                weapon.updatePosition(position, WIDTH);
-                weapon.drawObject();
-                // Check for collision with pipe
-            } else
-                removeWeapon();
+            else if (weapon.getIsShot())
+                if (!weapon.checkOutOfRange())
+                    weapon.updatePosition();
+                else {
+                    removeWeapon(weapon);
+                    break;
+                }
         }
     }
 
@@ -101,10 +107,8 @@ public class Bird {
     /**
      * Remove weapon from bird after collision/out-of-range
      */
-    public void removeWeapon() {
-        weapon.setIsShot(false);
-        hasShotWeapon = false;
-        weapon = null;
+    public void removeWeapon(Weapon weapon) {
+        weapons.remove(weapon);
     }
 
     /**
@@ -126,21 +130,37 @@ public class Bird {
     }
 
     /**
+     * Checking for destruction from any of the shot weapons
+     *
+     * @param pipeSet The pipe in front of the bird in play
+     * @return Returns true if pipe and shot weapon intersect
+     */
+    public boolean checkWeaponDestruction(PipeSet pipeSet) {
+        for (Weapon weapon: weapons)
+            if (weapon.checkDestruction(pipeSet)) {
+                removeWeapon(weapon);
+                return true;
+            }
+        return false;
+    }
+
+    /**
+     * Resets bird properties for weapons and shoots the currently held weapon
+     */
+    public void shootTheWeapon() {
+        this.hasPickedWeapon = false;
+        Weapon temp = weapons.get(weapons.size() - 1);
+        if (!temp.getIsShot())
+            temp.shootWeapon();
+    }
+
+    /**
      * Returns the current position of the bird
      *
      * @return Returns position of bird
      */
     public Point getPosition() {
         return position;
-    }
-
-    /**
-     * Returns the weapon of the bird
-     *
-     * @return Weapon currently held by bird
-     */
-    public Weapon getWeapon() {
-        return weapon;
     }
 
     /**
@@ -153,12 +173,12 @@ public class Bird {
     }
 
     /**
-     * Return value of hasShotWeapon
+     * Returns the picked weapon that is part of the bird until shot
      *
-     * @return Returns true if bird has shot the weapon
+     * @return Returns weapon held by bird
      */
-    public boolean getHasShotWeapon() {
-        return hasShotWeapon;
+    public Weapon getPickedWeapon() {
+        return weapons.get(weapons.size() - 1);
     }
 
     /**
@@ -171,21 +191,12 @@ public class Bird {
     }
 
     /**
-     * Setter for hasShotWeapon, sets as true when called
-     */
-    public void setHasShotWeapon() {
-        this.hasShotWeapon = true;
-        this.hasPickedWeapon = false;
-        weapon.shootWeapon();
-    }
-
-    /**
-     * Setter to assign weapon to the bird
+     * Adds the weapon to the weapons array and changes bird properties
      *
      * @param weapon Weapon that has been picked by bird
      */
     public void setWeapon(Weapon weapon) {
-        this.weapon = weapon;
+        weapons.add(weapon);
         hasPickedWeapon = true;
     }
 

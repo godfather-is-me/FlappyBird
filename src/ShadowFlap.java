@@ -3,7 +3,7 @@ import bagel.*;
 /**
  * Skeleton Code for SWEN20003 Project 2, Semester 2, 2021
  *
- * Please filling your name below
+ *
  * @author Prathyush Prashanth Rao
  * Student number: 1102225
  *
@@ -11,7 +11,7 @@ import bagel.*;
 
 public class ShadowFlap extends AbstractGame {
     // Constants
-    private final int LEVEL0_SCORE = 10;
+    private final int LEVEL0_SCORE = 0;
     private final int LEVEL1_SCORE = 30;
 
     // Game objects

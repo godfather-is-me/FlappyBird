@@ -1,7 +1,7 @@
 import bagel.*;
 
 /**
- * A class that stores all messaging features
+ * Class that stores all messaging features
  */
 public class Messages {
     private final Font FONT;

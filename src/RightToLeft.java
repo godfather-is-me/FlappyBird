@@ -2,7 +2,7 @@ import bagel.*;
 import bagel.util.*;
 
 /**
- * A class that wraps all methods for object that move from right to left on the screen
+ * Class that wraps all methods for object that move from right to left on the screen
  */
 public class RightToLeft {
     protected Point position;

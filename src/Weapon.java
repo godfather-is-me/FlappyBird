@@ -6,7 +6,7 @@ import java.util.Random;
  * Contains all standard methods used by the weapon.
  */
 
-public class Weapon extends RightToLeft{
+public class Weapon extends RightToLeft {
     // Constants
     private final int RANGE;
     private final int SHOOT_SPEED = 5;
@@ -99,8 +99,9 @@ public class Weapon extends RightToLeft{
      * @return Returns true if pipe and weapon intersect
      */
     public boolean checkDestruction(PipeSet pipeSet) {
-        if ((pipeSet.getLEVEL() == 0) || (pipeSet.getLEVEL() == 1 && type == WEAPON_TYPE.BOMB))
-            return  pipeSet.checkCollision(getBox(), false);
+        if (isShot)
+            if ((pipeSet.getLEVEL() == 0) || (pipeSet.getLEVEL() == 1 && type == WEAPON_TYPE.BOMB))
+                return  pipeSet.checkCollision(getBox(), false);
         return false;
     }
 
@@ -111,19 +112,17 @@ public class Weapon extends RightToLeft{
      * @param width The width of the bird
      */
     public void updatePosition(Point birdPosition, double width) {
-        double x, y;
-        if (isPicked) {
-            x = birdPosition.x + (width * ADJUSTMENT);
-            y = birdPosition.y;
-        } else if (isShot) {
-            x = position.x + SHOOT_SPEED;
-            y = position.y;
-            frameCounter += 1;
-        } else {
-            x = position.x;
-            y = position.y;
-        }
-        position = new Point(x, y);
+        position = new Point(birdPosition.x + (width * ADJUSTMENT), birdPosition.y);
+        drawObject();
+    }
+
+    /**
+     * Updates the position of the weapon when shot by the bird
+     */
+    public void updatePosition() {
+        position = new Point(position.x + SHOOT_SPEED, position.y);
+        frameCounter += 1;
+        drawObject();
     }
 
     /**
@@ -135,12 +134,21 @@ public class Weapon extends RightToLeft{
     }
 
     /**
-     * Setter for weapon property isShot
+     * Get weapon property isPicked
      *
-     * @param isShot Set true/false is weapon is shot or not
+     * @return Returns true if weapon has been picked up
      */
-    public void setIsShot(boolean isShot) {
-        this.isShot = isShot;
+    public boolean getIsPicked() {
+        return isPicked;
+    }
+
+    /**
+     * Get weapon property isShot
+     *
+     * @return Returns true if weapon has been shot by bird
+     */
+    public boolean getIsShot() {
+        return isShot;
     }
 
     /**

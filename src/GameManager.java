@@ -193,13 +193,10 @@ public class GameManager {
             }
 
             // Check if the weapon has collided with pipe when shot
-            if (BIRD.getHasShotWeapon())
-                if (BIRD.getWeapon().checkDestruction(pipeSet)) {
-                    score += 1;
-                    GAME_PIPES.remove(pipeSet);
-                    BIRD.removeWeapon();
-                }
-
+            if (BIRD.checkWeaponDestruction(pipeSet)) {
+                GAME_PIPES.remove(pipeSet);
+                score += 1;
+            }
             // The next pipe to be checked has not reached bird
             break;
         }
@@ -286,7 +283,7 @@ public class GameManager {
     public void shootWeapon(boolean keyPress) {
         if (keyPress)
             if (BIRD.getHasPickedWeapon())
-                BIRD.setHasShotWeapon();
+                BIRD.shootTheWeapon();
     }
 
     /**
@@ -329,7 +326,9 @@ public class GameManager {
             }
     }
 
-    // Method to set speed for given timescale change
+    /**
+     * Set speed for a given timescale change
+     */
     private void setSpeed() {
         moveSpeed = SPEED[timeScale];
     }
